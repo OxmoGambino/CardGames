@@ -1,7 +1,7 @@
 #include "firstalgo.h"
 #include "secondwindow.h"
 #include "ui_firstalgo.h"
-// #include <iostream>
+#include <iostream>
 #include <QGridLayout>
 #include <QWidget>
 #include <QPushButton>
@@ -47,6 +47,8 @@ FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
     mainLayout->addLayout(grid);
 
     setLayout(mainLayout);
+
+    std::cout<<"kbababa"<<std::endl;
 
     //playGame();
 }
