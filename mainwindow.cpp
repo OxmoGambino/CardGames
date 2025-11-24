@@ -26,7 +26,7 @@ void MainWindow::on_actionQuitter_triggered(){
 
 
 void MainWindow::on_startButton_clicked(){
-    hide();
+    close();
     secondwindow = new SecondWindow(this);
     secondwindow->show();
 }
