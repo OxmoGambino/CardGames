@@ -108,17 +108,17 @@ void ThirdWindow::shuffleCards(){
 void ThirdWindow::cardsRegister(int index){
     QString current = cards[index]->text();
     //Enregistrer la valeur de la 1ère carte
-    if (firstIndex == 0 && secondIndex == 0 && current=="?"){
+    if (firstValue == 0 && secondValue == 0 && current=="?"){
         cards[index]->setText(labels[index]);
-        firstIndex = cardsValues[index];
-        firstIndexIndex = index;
+        firstValue = cardsValues[index];
+        firstValueIndex = index;
     }
 
     //Enregistrer la valeur de la seconde carte
-    if (firstIndex!=0 && secondIndex == 0 && current=="?" && index != firstIndexIndex){
+    if (firstValue!=0 && secondValue == 0 && current=="?" && index != firstValueIndex){
         cards[index]->setText(labels[index]);
-        secondIndex = cardsValues[index];
-        secondIndexIndex = index;
+        secondValue = cardsValues[index];
+        secondValueIndex = index;
         locked = true;
     }
 }
@@ -130,13 +130,13 @@ void ThirdWindow::moveHistoric(){
     int indexMove1;
     int indexMove2;
 
-    if(firstIndexIndex <= secondIndexIndex){
-        indexMove1 = firstIndexIndex;
-        indexMove2 = secondIndexIndex;
+    if(firstValueIndex <= secondValueIndex){
+        indexMove1 = firstValueIndex;
+        indexMove2 = secondValueIndex;
     }
-    if(firstIndexIndex > secondIndexIndex){
-        indexMove2 = firstIndexIndex;
-        indexMove1 = secondIndexIndex;
+    if(firstValueIndex > secondValueIndex){
+        indexMove2 = firstValueIndex;
+        indexMove1 = secondValueIndex;
     }
 
 
@@ -160,33 +160,30 @@ void ThirdWindow::moveHistoric(){
 
 void ThirdWindow::cardsComparaison(){
 
-    if(secondIndex != 0 && firstIndex != 0){
+    if(secondValue != 0 && firstValue != 0){
         moveHistoric(); //Vérifier que ce coup n'a pas déjà été réalisé auparavent
         nbAttempt ++;
         attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
 
-        if(firstIndex!=secondIndex){ //Cas d'échec
+        if(firstValue!=secondValue){ //Cas d'échec
             QTimer::singleShot(1250, this, [this]() { //Le QTimer permet de voir l'affichage de la deuxième carte après t ms
-                cards[firstIndexIndex]->setText("?");
-                cards[secondIndexIndex]->setText("?");
-                firstIndex = 0;
-                secondIndex = 0;
+                cards[firstValueIndex]->setText("?");
+                cards[secondValueIndex]->setText("?");
+                firstValue = 0;
+                secondValue = 0;
                 locked = false;
             });
         }
 
-        if(firstIndex==secondIndex){ //Cas de réussite
-            firstIndex = 0;
-            secondIndex=0;
+        if(firstValue==secondValue){ //Cas de réussite
+            firstValue = 0;
+            secondValue=0;
             locked=false;
             pairFound++;
             pairLabel->setText("Paires trouvées : " + QString::number(pairFound));
         }
     }
 }
-
-
-
 
 
 
