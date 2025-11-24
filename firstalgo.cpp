@@ -10,7 +10,7 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QCloseEvent>
-
+//class ThirdWindow
 
 
 
@@ -48,10 +48,32 @@ FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
 
     setLayout(mainLayout);
 
-    std::cout<<"kbababa"<<std::endl;
 
-    //playGame();
+    createCards();
+
 }
+
+
+void FirstAlgo::createCards( ){
+    int nbCards = rows*cols;
+    nbPairs = nbCards/2;
+
+    cards.reserve(nbCards); //Allouer assez de places dans la grille pour toutes les cartes
+    cardsValues.reserve(nbCards);
+
+    //cardValues -> comparer les valeurs des cartes plus tard et labels -> noms affiché sur les cartes
+    for(int v=1; v<nbPairs+1 ; v++){
+        cardsValues.push_back(v);
+        cardsValues.push_back(v); //On veut deux fois chaques valeurs pour que les cartes aillent par pairs
+
+
+        labels.push_back(QString::number(v) + "A"); //Nom qui sera affiché sur les cartes
+        labels.push_back(QString::number(v) + "B");
+    }
+}
+
+
+
 
 
 FirstAlgo::~FirstAlgo()

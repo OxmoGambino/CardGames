@@ -60,7 +60,7 @@ ThirdWindow::ThirdWindow(QWidget *parent, int rows_, int cols_)
 
 
 
-void ThirdWindow::createCards(){
+void ThirdWindow::createCards( ){
     int nbCards = rows*cols;
     nbPairs = nbCards/2;
 

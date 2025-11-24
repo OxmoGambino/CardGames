@@ -48,7 +48,7 @@ void SecondWindow::on_PlayButton_clicked(){
     bool estPair = ((hValue * lValue) % 2 == 0);
 
     if (estPair){
-        hide();
+        close();
         thirdwindow = new ThirdWindow(this, hValue, lValue);
         thirdwindow->show();
     }
@@ -63,14 +63,15 @@ void SecondWindow::on_AlgoButton_clicked(){
     bool estPair = ((hValue * lValue) % 2 == 0);
 
     if (estPair){
-        hide();
+        close();
         firstalgo = new FirstAlgo(this, hValue, lValue);
         firstalgo->show();
     }
 }
 
 
-void SecondWindow::on_actionQuitter_triggered(){ close(); }
+void SecondWindow::on_actionQuitter_triggered(){
+    close(); }
 
 void SecondWindow::on_HSlide_valueChanged(int value){
     hValue = value;
