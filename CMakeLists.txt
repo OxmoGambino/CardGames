@@ -38,7 +38,7 @@ if (QT_VERSION_MAJOR EQUAL 6)
     qt_add_executable(CardBoard
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        firstalgo.h firstalgo.cpp firstalgo.ui
+
     )
 else()
     add_executable(CardBoard

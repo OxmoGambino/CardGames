@@ -9,10 +9,11 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QFile>
+#include <QFileDialog>
 
 
-
-ThirdWindow::ThirdWindow(QWidget *parent, int rows_, int cols_)
+ThirdWindow::ThirdWindow(QWidget *parent, int rows_, int cols_,int mode,const QString& filename)
     : QMainWindow(parent)
     , ui(new Ui::ThirdWindow)
 
@@ -24,7 +25,7 @@ ThirdWindow::ThirdWindow(QWidget *parent, int rows_, int cols_)
 
     ui->setupUi(this);
 
-//Création de la grille avec cartes et les infos du nombre de tentatives et du nombre de pairs trouvées
+    //Création de la grille avec cartes et les infos du nombre de tentatives et du nombre de pairs trouvées
     central = new QWidget(this); //widget qui contiendra la grille
     QVBoxLayout* mainLayout = new QVBoxLayout(central); //layout vertical
     QHBoxLayout* infoLayout = new QHBoxLayout(); //layout horizontal pour les labels
@@ -50,7 +51,23 @@ ThirdWindow::ThirdWindow(QWidget *parent, int rows_, int cols_)
     central->setLayout(mainLayout);
     setCentralWidget(central);
 
-    playGame();
+    if(mode == 0){ //mode de jeu classique avec création du jeu etc
+        createCards();
+        shuffleCards();
+        playGame();
+    }
+
+    if(mode == 1){ //mode de jeu chargé avec cartes déjà créées
+        loadGame(filename);      // ← Charge les données
+
+        // CALCULER nbPairs ICI (IMPORTANT !)
+        nbPairs = (rows * cols) / 2;
+        qDebug() << "nbPairs calculé:" << nbPairs;
+
+        playGame();              // ← Créer les boutons D'ABORD
+        replayLoadedGame();      // ← Rejouer APRÈS
+        displayFoundCards();
+    }
 
     setCentralWidget(central);
 
@@ -60,7 +77,7 @@ ThirdWindow::ThirdWindow(QWidget *parent, int rows_, int cols_)
 
 
 
-void ThirdWindow::createCards( ){
+void ThirdWindow::createCards(){
     int nbCards = rows*cols;
     nbPairs = nbCards/2;
 
@@ -89,11 +106,12 @@ void ThirdWindow::shuffleCards(){
         int j = QRandomGenerator::global()->bounded(cardsValues.size());
         int b;
         QString c;
-        b = cardsValues[i];
+
+        b = cardsValues[i]; //mélange des valeurs de cartes (pour les tests)
         cardsValues[i] = cardsValues[j];
         cardsValues[j] = b;
 
-        c = labels[i];
+        c = labels[i]; //mélange du visuel // à utiliser pour la sauvegarde
         labels[i] = labels[j];
         labels[j] = c;
     }
@@ -107,126 +125,131 @@ void ThirdWindow::shuffleCards(){
 //Enregistrer et tourner les cartes cliquées
 void ThirdWindow::cardsRegister(int index){
     QString current = cards[index]->text();
+
     //Enregistrer la valeur de la 1ère carte
-    if (firstValue == 0 && secondValue == 0 && current=="?"){
+    if (firstIndex == 0 && secondIndex == 0 && current=="?"){
         cards[index]->setText(labels[index]);
-        firstValue = cardsValues[index];
-        firstValueIndex = index;
+        firstIndex = cardsValues[index];
+        firstIndexIndex = index;
     }
 
     //Enregistrer la valeur de la seconde carte
-    if (firstValue!=0 && secondValue == 0 && current=="?" && index != firstValueIndex){
+    else if (firstIndex!=0 && secondIndex == 0 && current=="?" && index != firstIndexIndex){
         cards[index]->setText(labels[index]);
-        secondValue = cardsValues[index];
-        secondValueIndex = index;
+        secondIndex = cardsValues[index];
+        secondIndexIndex = index;
         locked = true;
-    }
-}
 
 
+        //mécanique une fois que les deux cartes sont retournées (d'où le dans else if)
 
+        bool isPair = playMove(firstIndexIndex, secondIndexIndex);
 
-void ThirdWindow::moveHistoric(){
-    int indexMove1;
-    int indexMove2;
-
-    if(firstValueIndex <= secondValueIndex){
-        indexMove1 = firstValueIndex;
-        indexMove2 = secondValueIndex;
-    }
-    if(firstValueIndex > secondValueIndex){
-        indexMove2 = firstValueIndex;
-        indexMove1 = secondValueIndex;
-    }
-
-
-    std::string s1 = std::to_string(indexMove1);
-    std::string s2 = std::to_string(indexMove2);
-
-
-    int moveConcatenation = std::stoi(s1+s2);
-
-    if(historic.contains(moveConcatenation)==false){
-        historic.insert(moveConcatenation);
-    }
-    else{
-        nbAttempt++;
-    }
-
-}
-
-
-
-
-void ThirdWindow::cardsComparaison(){
-
-    if(secondValue != 0 && firstValue != 0){
-        moveHistoric(); //Vérifier que ce coup n'a pas déjà été réalisé auparavent
-        nbAttempt ++;
-        attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
-
-        if(firstValue!=secondValue){ //Cas d'échec
+        if(!isPair){ //Cas d'échec
             QTimer::singleShot(1250, this, [this]() { //Le QTimer permet de voir l'affichage de la deuxième carte après t ms
-                cards[firstValueIndex]->setText("?");
-                cards[secondValueIndex]->setText("?");
-                firstValue = 0;
-                secondValue = 0;
+                cards[firstIndexIndex]->setText("?");
+                cards[secondIndexIndex]->setText("?");
+                firstIndex = 0;
+                secondIndex = 0;
                 locked = false;
             });
         }
 
-        if(firstValue==secondValue){ //Cas de réussite
-            firstValue = 0;
-            secondValue=0;
+        else{ //cas de victoire
+            firstIndex = 0;
+            secondIndex=0;
             locked=false;
-            pairFound++;
-            pairLabel->setText("Paires trouvées : " + QString::number(pairFound));
+            //plus besoin de pairFound++ et actualisation de l'affichage (déjà dans playMove)
         }
+
+        endCondition(); // vérification de fin de partie
     }
 }
 
 
+bool ThirdWindow::hasBeenPlayed(int idx1, int idx2){
+    int mini = std::min(idx1, idx2);
+    int maxi = std::max(idx1, idx2);
+
+    QString conc_str = QString::number(mini) + QString::number(maxi); //concaténation en une string
+    int conc = conc_str.toInt(); // conversion de la concaténation en une entier unique normalisé
 
 
+    bool alreadyPlayed = (playedMoves.insert(conc)).second; //teste l'insert.
+    //True : insersion faite, coup non déjà joué
+    //False : insersion non faite, coup déjà joué
+
+    return !alreadyPlayed; //renvoie l'inverse du booléen pour la lisibilité
+
+}
 
 
 void ThirdWindow::endCondition(){
-    if(pairFound == nbPairs){ //Fin de jeu (on a trouvé toute les pairs)
+    qDebug() << ">>> endCondition appelée, pairFound:" << pairFound << "nbPairs:" << nbPairs;
+
+    if(pairFound == nbPairs){
+        qDebug() << ">>> Condition vérifiée, partie terminée";
+
         QMessageBox msgBox;
         msgBox.setInformativeText("Vous avez gagné !");
-        msgBox.setText("Bravo, vous avez trouvé toutes les paires en " + QString::number(nbAttempt) + " coups !");
+        msgBox.setText("Bravo, vous avez trouvé toutes les paires en " +
+                       QString::number(nbAttempt) + " coups !");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
-        QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save); //Pour renommer le bouton Save
-        QAbstractButton *cancelButton = msgBox.button(QMessageBox::Cancel); //Renommer le boutton Cancel
+        QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
+        QAbstractButton *cancelButton = msgBox.button(QMessageBox::Cancel);
 
         saveButton->setText("Sauvegarder");
         cancelButton->setText("Quitter");
 
-        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole); //Boutton pour rejouer
+        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
 
+        msgBox.setDefaultButton(QMessageBox::Cancel);
 
-        msgBox.setDefaultButton(QMessageBox::Cancel); //le bouton de base c'est quitter
-
+        qDebug() << ">>> Affichage du QMessageBox";
         msgBox.exec();
+        qDebug() << ">>> QMessageBox fermé";
+
+        qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
 
         if (msgBox.clickedButton() == saveButton){
-            //Guillaume's script
-        }
+            qDebug() << ">>> Bouton SAUVEGARDER cliqué";
 
-        else if (msgBox.clickedButton()==cancelButton){
+            QString filename = QFileDialog::getSaveFileName(
+                this,
+                "Sauvegarder la partie",
+                "",
+                "Text files (*.txt);;All files (*)",
+                nullptr,
+                QFileDialog::DontUseNativeDialog
+                );
+
+            qDebug() << ">>> QFileDialog fermé, filename:" << filename;
+
+            if(!filename.isEmpty()) {
+                qDebug() << ">>> Appel de saveGame()";
+                saveGame(filename);
+                qDebug() << ">>> Retour de saveGame()";
+            } else {
+                qDebug() << ">>> Filename vide, sauvegarde annulée";
+            }
+        }
+        else if (msgBox.clickedButton() == cancelButton){
+            qDebug() << ">>> Bouton QUITTER cliqué";
             hide();
         }
-
-        else if (msgBox.clickedButton()==retryButton){
+        else if (msgBox.clickedButton() == retryButton){
+            qDebug() << ">>> Bouton REJOUER cliqué";
             hide();
-            secondwindow = new SecondWindow(this); //On réouvre la page du choix de la taille du plateau
+            secondwindow = new SecondWindow(this);
             secondwindow->show();
         }
 
+        qDebug() << ">>> Fin de endCondition";
+    } else {
+        qDebug() << ">>> Condition NON vérifiée";
     }
 }
-
 
 
 
@@ -235,9 +258,6 @@ void ThirdWindow::endCondition(){
 
 
 void ThirdWindow::playGame(){
-    createCards();
-    shuffleCards();
-
 
     for(int r=0 ; r<rows ; r++){
         for(int c=0; c<cols ; c++){
@@ -265,9 +285,7 @@ void ThirdWindow::playGame(){
                     return;
                 }
 
-                cardsRegister(index);
-                cardsComparaison();
-                endCondition();
+                cardsRegister(index); // cardsRegister fait aussi le boulot de feu cardsComparaison
             });
         }
     }
@@ -279,6 +297,10 @@ void ThirdWindow::playGame(){
 
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
 void ThirdWindow::closeEvent(QCloseEvent *event){
+    if(pairFound==nbPairs){ // lorsque j'ai fini la partie et que je clique sur la croix, le jeu se ferme et ne demande pas une autre sauvegarde
+        event->accept();
+        return;
+    }
     QMessageBox msgBox;
     msgBox.setText("Voulez-vous sauvegarder la partie ?");
 
@@ -288,21 +310,193 @@ void ThirdWindow::closeEvent(QCloseEvent *event){
     msgBox.exec();
 
     if(msgBox.clickedButton()==saveButton){
-        //GuiGui's Function
+        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","Text files (*.txt) ;; All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
+        // Text files : suggestion par défault. All Files : deuxième filtre si l'utilisateur veut mettre une extension particulière.
+
+        if(!filename.isEmpty()) { //vérification d'un nom valide
+            saveGame(filename);
+            event -> accept(); //fermer la fenêtre
+        }
+        else{event->ignore();}
     }
 
     else if(msgBox.clickedButton()==leaveButton){
-        hide();
+        event -> accept(); //accepter la fermeture de la fenêtre
     }
 }
 
 
+void ThirdWindow::saveGame(const QString& filename){
+    qDebug() << "=== Début saveGame ===";
+    qDebug() << "Filename:" << filename;
+
+    QFile file(filename);
+
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Text)){
+        qDebug() << "ERREUR: Impossible d'ouvrir";
+        QMessageBox::critical(this,"Erreur","Impossible de créer la Sauvegarde");
+        return;
+    }
+
+    qDebug() << "Fichier ouvert OK";
+
+    QTextStream out(&file);
+
+    out<<rows<<" "<<cols<<"\n";
+    qDebug() << "Dimensions écrites:" << rows << cols;
+
+    for(int i = 0;i < rows*cols; i++){ //écriture des labels visuels
+        out << labels[i] << " ";
+    }
+    out<<"\n";
+    qDebug() << "Grille écrite, taille labels:" << labels.size();
+
+    for (int i = 0 ; i<rows*cols; i++) //écriture des index des cartes
+    {
+        out << cardsValues[i] << " ";
+    }
+
+    out<<"\n";
+
+    qDebug() << "Grille écrite, taille indexs:" << cardsValues.size();
+
+    for(int i = 0; i<hist.size(); i++){
+        std::pair<int,int> move = hist[i];
+        out << move.first << " " << move.second << "\n";
+    }
+    qDebug() << "Historique écrit, nombre de coups:" << hist.size();
+
+    file.close();
+    qDebug() << "=== Fin saveGame ===";
+
+    QMessageBox::information(this, "Sauvegarde","Partie Sauvegardée avec succès \n");
+}
+
+void ThirdWindow::loadGame(const QString& filename){
+    QString lab; // stockage temp des labels après
+    int indexs; //stockage temp des index des cartes
+    QFile file(filename);
+
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
+        QMessageBox::critical(this,"Erreur","Impossible d'ouvrir la sauvegarde");
+        return;
+    }
+
+    QTextStream in(&file);
+    qDebug() << filename << "le fichier a bien été lu et reconnu";
+    in.readLine(); //skip de la première ligne car déjà init;
+
+    for(int i = 0; i<rows*cols; i++){
+        in >> lab;
+        labels.push_back(lab);
+        qDebug() << labels[i];
+    }
+
+    for(int i = 0; i<rows*cols;i++){
+        in >> indexs;
+        cardsValues.push_back(indexs);
+        qDebug() << cardsValues[i];
+    }
+    //int i = 0;
+    while(!in.atEnd()){ //jusqu'au bout du fichier
+        int idx1,idx2; //utilisé pour débug
+        in >> idx1 >> idx2; // lecture des indexs
+
+        hist.push_back(std::make_pair(idx1,idx2));
+        //qDebug() << hist[i].first << hist[i].second << i;
+        //i++;
+    }
+
+    replayLoadedGame();
+}
+
+void ThirdWindow::replayLoadedGame(){
+    nbAttempt = 0;
+    pairFound = 0;
+    playedMoves.clear(); //on sait jamais, pas qu'il y ait de conflits si on ferme pas le jeu entre temps
+
+    QVector<std::pair<int,int>> loadedHist = hist;
+    hist.clear(); // idem, pour les prochaines parties c'est moieux si hist est vide. (à vérifier s'il ne se vide pas déjà automatiquement)
+
+    for(int i = 0; i < loadedHist.size(); i++){ // boucle qui rejoue les coups
+        int idx1 = loadedHist[i].first; int idx2 = loadedHist[i].second;
+        qDebug() << "rejeu du coup " << i << " : " << idx1 << "&" << idx2;
+        playMove(idx1, idx2);// jeu avec les deux index enregistrés
+    }
+
+    qDebug() << "État final: Tentatives=" << nbAttempt << ", Paires=" << pairFound << "/" << nbPairs;
+    qDebug() << "=== Fin replayLoadedGame ===";
+}
+
+void ThirdWindow::displayFoundCards(){
+    qDebug() << "=== Affichage des cartes trouvées ===";
+
+    // Set pour stocker les cartes trouvées (évite les doublons)
+    QSet<int> foundCards;
+
+    // Parcourir l'historique pour trouver les paires réussies
+    for(const auto& move : hist){
+        int idx1 = move.first;
+        int idx2 = move.second;
+
+        // Si c'est une paire (mêmes valeurs)
+        if(cardsValues[idx1] == cardsValues[idx2]){
+            foundCards.insert(idx1);
+            foundCards.insert(idx2);
+            qDebug() << "Paire:" << idx1 << "et" << idx2 << "→" << labels[idx1];
+        }
+    }
+
+    // Afficher toutes les cartes trouvées
+    for(int index : foundCards){
+        cards[index]->setText(labels[index]);      // Afficher le label
+        cards[index]->setEnabled(false);           // Désactiver le bouton
+        qDebug() << "Carte" << index << "affichée:" << labels[index];
+    }
+
+    qDebug() << "Total de cartes affichées:" << foundCards.size();
+    qDebug() << "=== Fin displayFoundCards ===";
+}
+
+bool ThirdWindow::playMove(int idx1, int idx2){
+    if (idx1 < 0 || idx2 < 0 || idx1 >=rows*cols || idx2 >= rows*cols){
+        qDebug() << "Indice erroné";
+        return false;
+    }
+
+    if(idx1 == idx2){
+        qDebug() << "Erreur, deux fois la même carte";
+        return false;
+    }
 
 
+    hist.push_back(std::make_pair(idx1,idx2)); //ajout du coup non normalisé à l'historique complet
+
+    if(hasBeenPlayed(idx1, idx2)){ // fait l'ajoue à l'histo normalisé et renvoie le booléen
+        nbAttempt ++; // ajout d'une pénalité
+        qDebug() <<"coup déjà joué, pénalité";
+    }
+    nbAttempt ++; //ajout d'un coup normal si pas déjà joué
 
 
+    bool isPair = (cardsValues[idx1] == cardsValues[idx2]);
+
+    if(isPair){
+        pairFound++;
+        qDebug() << "Paire trouvée" << pairFound <<"/" << nbPairs;
+    }
+    else {
+        qDebug() << "Pas une paire";
+    }
+
+    //mise à jour de l'affichage
+    attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
+    pairLabel->setText("Paires trouvées : " + QString::number(pairFound));
+
+    return isPair;
+}
 
 
-ThirdWindow::~ThirdWindow() {
+ThirdWindow::~ThirdWindow(){
     delete ui;
 }
