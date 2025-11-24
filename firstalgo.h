@@ -27,6 +27,7 @@ public:
     void cardsComparaison();
     void endCondition();
     void moveHistoric();
+    void autoSolve();
 
 
 
@@ -63,5 +64,6 @@ private:
     SecondWindow *secondwindow;
 protected:
     void closeEvent(QCloseEvent *event) override;
+
 
 };
