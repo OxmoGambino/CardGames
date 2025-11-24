@@ -27,6 +27,7 @@ public:
     void cardsComparaison();
     void endCondition();
     void moveHistoric();
+    void autoSolve();
 
 
 

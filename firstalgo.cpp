@@ -55,8 +55,12 @@ FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
 
 
 void FirstAlgo::createCards( ){
-    int nbCards = rows*cols;
+    nbCards = rows*cols;
     nbPairs = nbCards/2;
+
+    cards.clear(); //au cas où
+    cardsValues.clear();
+    labels.clear();
 
     cards.reserve(nbCards); //Allouer assez de places dans la grille pour toutes les cartes
     cardsValues.reserve(nbCards);
@@ -159,7 +163,8 @@ void FirstAlgo::cardsComparaison(){
         nbAttempt ++;
         attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
 
-        if(firstValue!=secondValue){ //Cas d'échec
+        //Cas d'échec
+        if(firstValue!=secondValue){
             QTimer::singleShot(1250, this, [this]() { //Le QTimer permet de voir l'affichage de la deuxième carte après t ms
                 cards[firstValueIndex]->setText("?");
                 cards[secondValueIndex]->setText("?");
@@ -168,8 +173,8 @@ void FirstAlgo::cardsComparaison(){
                 locked = false;
             });
         }
-
-        if(firstValue==secondValue){ //Cas de réussite
+        //Cas de réussite
+        if(firstValue==secondValue){
             firstValue = 0;
             secondValue=0;
             locked=false;
@@ -223,7 +228,50 @@ void FirstAlgo::endCondition(){
 
 
 
+void FirstAlgo::autoSolve(){
+    // Remettre l'état de la partie au propre
+    firstValueIndex = -1;
+    secondValueIndex = -1;
+    nbAttempt = 0;
+    pairFound = 0;
+    locked = false;
+    alreadyPlayed = false;
+    historic.clear();
 
+    if (attemptLabel) {
+        attemptLabel->setText("Tentatives : 0");
+    }
+    if (pairLabel) {
+        pairLabel->setText("Paires trouvées : 0");
+    }
+
+    //pour chaque valeur v on trouve les 2 cartes correspondantes
+    for (int v = 1; v <= nbPairs; v++) {
+        int firstIndex = -1;
+        int secondIndex = -1;
+
+        //Chercher les 2 indices i tels que cardsValues[i] == v
+        for (int i = 0; i < nbCards; i++) {
+            if (cardsValues[i] == v) {
+                if (firstIndex == -1)
+                    firstIndex = i;
+                else {
+                    secondIndex = i;
+                    break;
+                }
+            }
+        }
+
+        //Sécurité au cas où
+        if (firstIndex == -1 || secondIndex == -1)
+            continue;
+
+        cardsRegister(firstIndex);
+        cardsRegister(secondIndex);
+        cardsComparaison();
+    }
+    endCondition();
+}
 
 
 
@@ -232,49 +280,19 @@ void FirstAlgo::playGame(){
     createCards();
     shuffleCards();
 
-
-    for(int r=0 ; r<rows ; r++){
-        for(int c=0; c<cols ; c++){
-
-            QPushButton* card = new QPushButton("?", central); //création d'un pushButton avec central pour parent et  "?" en txt
+    //Création de la grille
+    for(int r = 0; r < rows; ++r){
+        for(int c = 0; c < cols; ++c){
+            QPushButton* card = new QPushButton("?", central);
             card->setFixedSize(120,150);
 
-            grid->addWidget(card, r ,c); //Ajouter card au widget à l'emplacement r ,c
+            grid->addWidget(card, r, c);
             cards.push_back(card);
-
-            int index = r*cols+c; //2D vers 1D
-            //cardsValues.push_back(index);
-
-            //retourner les cartes deux par deux et retournement lors de non réussite
-            //connect(card, &QPushButton::clicked, this, [this,index](){
-                //QString current = cards[index]->text();
-
-            /*if (locked==true){    //Pour ne pas pouvoir retourner + de deux cartes
-                return;
-            }*/
-
-
-            /*QString current = cards[index]->text(); //Pour ne pas retourner une carte déjà tourné
-            if (current!="?"){
-                return;
-            }*/
-
-            while(pairFound != nbCards/2){
-                int rdmValue = QRandomGenerator::global()->bounded(cardsValues.size()/2); //Index
-                //QString current = cards[rdmValue]->text();
-
-                for(int indexRdmValue=0 ; indexRdmValue<rows ; indexRdmValue++){
-                    if (cardsValues[indexRdmValue]==rdmValue){ // && current == "?"){
-                        cardsRegister(indexRdmValue);
-                    }
-                }
-                cardsComparaison();
-
-            }
-            endCondition();
-        //});
         }
     }
+
+
+    autoSolve(); // Algorithme "triche"
 
 }
 
