@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
+#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -19,5 +20,8 @@ int main(int argc, char *argv[])
     }
     MainWindow w;
     w.show();
+
+    std::cout<<"caca"<<std::endl;
+
     return a.exec();
 }

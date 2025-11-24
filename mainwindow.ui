@@ -127,6 +127,8 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </property>
     <addaction name="separator"/>
     <addaction name="actionQuitter"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoadGame"/>
    </widget>
    <addaction name="menufichier"/>
   </widget>
@@ -134,6 +136,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
   <action name="actionQuitter">
    <property name="text">
     <string>Quitter</string>
+   </property>
+  </action>
+  <action name="actionLoadGame">
+   <property name="text">
+    <string>Charger une partie</string>
    </property>
   </action>
  </widget>

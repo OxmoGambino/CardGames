@@ -1,9 +1,7 @@
 #include "secondwindow.h"
-#include "firstalgo.h"
 #include "ui_secondwindow.h"
 #include "thirdwindow.h"
 #include <QMessageBox>
-
 
 #include <QSlider>
 
@@ -48,7 +46,7 @@ void SecondWindow::on_PlayButton_clicked(){
     bool estPair = ((hValue * lValue) % 2 == 0);
 
     if (estPair){
-        close();
+        hide();
         thirdwindow = new ThirdWindow(this, hValue, lValue);
         thirdwindow->show();
     }
@@ -59,19 +57,7 @@ void SecondWindow::on_PlayButton_clicked(){
 }
 
 
-void SecondWindow::on_AlgoButton_clicked(){
-    bool estPair = ((hValue * lValue) % 2 == 0);
-
-    if (estPair){
-        close();
-        firstalgo = new FirstAlgo(this, hValue, lValue);
-        firstalgo->show();
-    }
-}
-
-
-void SecondWindow::on_actionQuitter_triggered(){
-    close(); }
+void SecondWindow::on_actionQuitter_triggered(){ close(); }
 
 void SecondWindow::on_HSlide_valueChanged(int value){
     hValue = value;
