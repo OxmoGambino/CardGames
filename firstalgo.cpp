@@ -271,6 +271,8 @@ void FirstAlgo::autoSolve(){
         cardsComparaison();
     }
     endCondition();
+
+
 }
 
 
