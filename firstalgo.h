@@ -21,6 +21,7 @@ public:
 
     void createCards();
     void shuffleCards();
+    void printCards();
     void playGame();
     void cardsRegister(int index);
     void cardsComparaison();
@@ -41,13 +42,14 @@ private:
     QVector<int> cardsValues;
     QVector<QString> labels;
 
-    int firstIndex = 0;
-    int firstIndexIndex;
-    int secondIndex = 0;
-    int secondIndexIndex;
+    int firstValue = 0;
+    int firstValueIndex;
+    int secondValue = 0;
+    int secondValueIndex;
     int nbAttempt = 0;
     int pairFound =0;
     int nbPairs=0;
+    int nbCards=0;
 
     QLabel* attemptLabel;
     QLabel* pairLabel;
@@ -59,6 +61,7 @@ private:
     std::unordered_set<int> historic;
 
     SecondWindow *secondwindow;
-
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 };
