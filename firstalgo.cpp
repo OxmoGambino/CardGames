@@ -273,6 +273,8 @@ void FirstAlgo::autoSolve(){
     endCondition();
 
 
+
+
 }
 
 
