@@ -382,6 +382,9 @@ void ThirdWindow::loadGame(const QString& filename){
         return;
     }
 
+    //fichier ouvert, début du chargement
+    const auto start  = std::chrono::steady_clock::now(); //init du compteur de temps, steady clock de stl très utilisé pour le calcul d'intervalle
+
     QTextStream in(&file);
     qDebug() << filename << "le fichier a bien été lu et reconnu";
     in.readLine(); //skip de la première ligne car déjà init;
@@ -407,7 +410,17 @@ void ThirdWindow::loadGame(const QString& filename){
         //i++;
     }
 
+    file.close(); //plus besoin du fichier pour replay
+
     replayLoadedGame();
+
+
+    //partie chargée, fin du compteur de temps
+    const auto end = std::chrono::steady_clock::now();
+    const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+    QString msg = QString("Votre sauvegarde a été chargée en %1 ms").arg(duration); //.arg -> met la valeur de temps (type inconnu) en %1
+
+    QMessageBox::information(this,"Chargement effectué",msg);
 }
 
 void ThirdWindow::replayLoadedGame(){

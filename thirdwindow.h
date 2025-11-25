@@ -47,7 +47,6 @@ private:
     int pairFound =0;
     int nbPairs=0;
 
-
     QGridLayout* grid = nullptr;
     QVector<QPushButton*> cards; //vecteur de boutons
     QVector<int> cardsValues; // Plateau de jeu, utilisé en back pour jouer

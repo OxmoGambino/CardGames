@@ -31,6 +31,9 @@ set(PROJECT_SOURCES
     thirdwindow.cpp
     thirdwindow.h
     thirdwindow.ui
+    firstalgo.h
+    firstalgo.cpp
+    firstalgo.ui
 )
 
 # Cible
