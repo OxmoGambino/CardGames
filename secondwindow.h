@@ -3,6 +3,7 @@
 #include <QString>
 
 class ThirdWindow;
+class FirstAlgo;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SecondWindow; }
@@ -16,6 +17,7 @@ public:
 
 private slots:
     void on_PlayButton_clicked();
+    void on_AlgoButton_clicked();
     void on_actionQuitter_triggered();
     void on_HSlide_valueChanged(int value);
     void on_LSlide_valueChanged(int value);
@@ -23,6 +25,7 @@ private slots:
 private:
     Ui::SecondWindow *ui;
     ThirdWindow *thirdwindow = nullptr;
+    FirstAlgo *firstalgo;
     int hValue = 0;
     int lValue = 0;
 };

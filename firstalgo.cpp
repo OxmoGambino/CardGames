@@ -191,38 +191,10 @@ void FirstAlgo::cardsComparaison(){
 
 void FirstAlgo::endCondition(){
     if(pairFound == nbPairs){ //Fin de jeu (on a trouvé toute les pairs)
-        QMessageBox msgBox;
-        msgBox.setInformativeText("Vous avez gagné !");
-        msgBox.setText("Bravo, vous avez trouvé toutes les paires en " + QString::number(nbAttempt) + " coups !");
-        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
-        QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save); //Pour renommer le bouton Save
-        QAbstractButton *cancelButton = msgBox.button(QMessageBox::Cancel); //Renommer le boutton Cancel
-
-        saveButton->setText("Sauvegarder");
-        cancelButton->setText("Quitter");
-
-        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole); //Boutton pour rejouer
-
-
-        msgBox.setDefaultButton(QMessageBox::Cancel); //le bouton de base c'est quitter
-
-        msgBox.exec();
-
-        if (msgBox.clickedButton() == saveButton){
-            //Guillaume's script
-        }
-
-        else if (msgBox.clickedButton()==cancelButton){
-            hide();
-        }
-
-        else if (msgBox.clickedButton()==retryButton){
-            hide();
-            secondwindow = new SecondWindow(this); //On réouvre la page du choix de la taille du plateau
-            secondwindow->show();
-        }
-
+        QMessageBox::information(this,
+                                 "Vous avez gagné !",
+                                 "Bravo, vous avez trouvé toutes les paires en " + QString::number(nbAttempt) + " coups !");
     }
 }
 
@@ -323,34 +295,6 @@ void FirstAlgo::closeEvent(QCloseEvent *event){
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*void FirstAlgo::playGame(){
-    while(pairFound != nbCards/2){
-        int rdmValue = QRandomGenerator::global()->bounded(cardsValues.size()/2); //Index
-        QString current = cards[rdmValue]->text();
-
-        for(int i=0 ; i<rows ; i++){
-            if (cardsValues[i]==rdmValue && current == "?"){
-                cards[i]->setText(labels[i]);
-            }
-
-        }
-    }
-}*/
 
 
 
