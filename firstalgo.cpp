@@ -217,37 +217,48 @@ void FirstAlgo::autoSolve(){
         pairLabel->setText("Paires trouvées : 0");
     }
 
-    for(int j=1 ; j<=100 ; j++){
-        int rdmValueH = QRandomGenerator::global()->bounded(cardsValues.size());
-        int rdmValueL = QRandomGenerator::global()->bounded(cardsValues.size());
-    }
+        for(int j=1 ; j<=100 ; j++){
+            int rdmValueH = QRandomGenerator::global()->bounded(cardsValues.size());
+            int rdmValueL = QRandomGenerator::global()->bounded(cardsValues.size());
+            QString currentH = cards[rdmValueH]->text();
+            QString currentL = cards[rdmValueL]->text();
 
-    //pour chaque valeur v on trouve les 2 cartes correspondantes
-    for (int v = 1; v <= nbPairs; v++) {
-        int firstIndex = -1;
-        int secondIndex = -1;
-
-        //Chercher les 2 indices i tels que cardsValues[i] == v
-        for (int i = 0; i < nbCards; i++) {
-            if (cardsValues[i] == v) {
-                if (firstIndex == -1)
-                    firstIndex = i;
-                else {
-                    secondIndex = i;
-                    break;
-                }
+            if(currentL == "?" && currentH == "?"){
+                cardsRegister(rdmValueH);
+                cardsRegister(rdmValueL);
+                cardsComparaison();
             }
+
         }
 
-        //Sécurité au cas où
-        if (firstIndex == -1 || secondIndex == -1)
-            continue;
+        //pour chaque valeur v on trouve les 2 cartes correspondantes
+        for (int v = 1; v <= nbPairs; v++) {
+            int firstIndex = -1;
+            int secondIndex = -1;
 
-    cardsRegister(firstIndex);
-    cardsRegister(secondIndex);
-    cardsComparaison();
-    }
-    endCondition();
+            //Chercher les 2 indices i tels que cardsValues[i] == v
+            for (int i = 0; i < nbCards; i++) {
+                if (cardsValues[i] == v) {
+                    if (firstIndex == -1)
+                        firstIndex = i;
+                    else {
+                        secondIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            //Sécurité au cas où
+            if (firstIndex == -1 || secondIndex == -1){
+                continue;
+            }
+
+
+        cardsRegister(firstIndex);
+        cardsRegister(secondIndex);
+        }
+        cardsComparaison();
+        endCondition();
 
 }
 
