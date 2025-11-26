@@ -217,6 +217,9 @@ void FirstAlgo::autoSolve(){
         pairLabel->setText("Paires trouvées : 0");
     }
 
+    for(int j=1 ; j<=100 ; j++){
+    }
+
     //pour chaque valeur v on trouve les 2 cartes correspondantes
     for (int v = 1; v <= nbPairs; v++) {
         int firstIndex = -1;
@@ -238,14 +241,11 @@ void FirstAlgo::autoSolve(){
         if (firstIndex == -1 || secondIndex == -1)
             continue;
 
-        cardsRegister(firstIndex);
-        cardsRegister(secondIndex);
-        cardsComparaison();
+    cardsRegister(firstIndex);
+    cardsRegister(secondIndex);
+    cardsComparaison();
     }
     endCondition();
-
-
-
 
 }
 
