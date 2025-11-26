@@ -39,10 +39,10 @@ private:
 
     int rows=0;
     int cols=0;
-    int firstIndex = 0;
-    int firstIndexIndex;
-    int secondIndex = 0;
-    int secondIndexIndex;
+    int firstValue = 0;
+    int firstValueIndex;
+    int secondValue = 0;
+    int secondValueIndex;
     int nbAttempt = 0;
     int pairFound =0;
     int nbPairs=0;
