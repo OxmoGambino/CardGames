@@ -218,6 +218,8 @@ void FirstAlgo::autoSolve(){
     }
 
     for(int j=1 ; j<=100 ; j++){
+        int rdmValueH = QRandomGenerator::global()->bounded(cardsValues.size());
+        int rdmValueL = QRandomGenerator::global()->bounded(cardsValues.size());
     }
 
     //pour chaque valeur v on trouve les 2 cartes correspondantes

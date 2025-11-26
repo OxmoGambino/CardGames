@@ -127,37 +127,37 @@ void ThirdWindow::cardsRegister(int index){
     QString current = cards[index]->text();
 
     //Enregistrer la valeur de la 1ère carte
-    if (firstIndex == 0 && secondIndex == 0 && current=="?"){
+    if (firstValue == 0 && secondValue == 0 && current=="?"){
         cards[index]->setText(labels[index]);
-        firstIndex = cardsValues[index];
-        firstIndexIndex = index;
+        firstValue = cardsValues[index];
+        firstValueIndex = index;
     }
 
     //Enregistrer la valeur de la seconde carte
-    else if (firstIndex!=0 && secondIndex == 0 && current=="?" && index != firstIndexIndex){
+    else if (firstValue!=0 && secondValue == 0 && current=="?" && index != firstValueIndex){
         cards[index]->setText(labels[index]);
-        secondIndex = cardsValues[index];
-        secondIndexIndex = index;
+        secondValue = cardsValues[index];
+        secondValueIndex = index;
         locked = true;
 
 
         //mécanique une fois que les deux cartes sont retournées (d'où le dans else if)
 
-        bool isPair = playMove(firstIndexIndex, secondIndexIndex);
+        bool isPair = playMove(firstValueIndex, secondValueIndex);
 
         if(!isPair){ //Cas d'échec
             QTimer::singleShot(1250, this, [this]() { //Le QTimer permet de voir l'affichage de la deuxième carte après t ms
-                cards[firstIndexIndex]->setText("?");
-                cards[secondIndexIndex]->setText("?");
-                firstIndex = 0;
-                secondIndex = 0;
+                cards[firstValueIndex]->setText("?");
+                cards[secondValueIndex]->setText("?");
+                firstValue = 0;
+                secondValue = 0;
                 locked = false;
             });
         }
 
         else{ //cas de victoire
-            firstIndex = 0;
-            secondIndex=0;
+            firstValue = 0;
+            secondValue=0;
             locked=false;
             //plus besoin de pairFound++ et actualisation de l'affichage (déjà dans playMove)
         }
