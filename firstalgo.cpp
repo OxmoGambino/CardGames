@@ -155,7 +155,7 @@ void FirstAlgo::moveHistoric(){
 
 
 
-
+//Regarde si les deux cartes retournées sont les mêmes
 void FirstAlgo::cardsComparaison(){
 
     if(secondValue != 0 && firstValue != 0){
@@ -163,17 +163,6 @@ void FirstAlgo::cardsComparaison(){
         nbAttempt ++;
         attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
 
-        //Cas d'échec
-        if(firstValue!=secondValue){
-            QTimer::singleShot(1250, this, [this]() { //Le QTimer permet de voir l'affichage de la deuxième carte après t ms
-                cards[firstValueIndex]->setText("?");
-                cards[secondValueIndex]->setText("?");
-                firstValue = 0;
-                secondValue = 0;
-                locked = false;
-            });
-        }
-        //Cas de réussite
         if(firstValue==secondValue){
             firstValue = 0;
             secondValue=0;
@@ -181,8 +170,21 @@ void FirstAlgo::cardsComparaison(){
             pairFound++;
             pairLabel->setText("Paires trouvées : " + QString::number(pairFound));
         }
+
+        //Cas d'échec
+        else{
+            cards[firstValueIndex]->setText("?");
+            cards[secondValueIndex]->setText("?");
+            firstValue = 0;
+            secondValue = 0;
+            locked = false;
+        }
+
+        //Cas de réussite
+
     }
 }
+
 
 
 
@@ -201,55 +203,100 @@ void FirstAlgo::endCondition(){
 
 
 void FirstAlgo::autoSolve(){
-    // Remettre l'état de la partie au propre
-    firstValueIndex = -1;
+
+    /*//On réinitialise bien les valeurs pour être sûr
+    firstValue       = 0;
+    secondValue      = 0;
+    firstValueIndex  = -1;
     secondValueIndex = -1;
-    nbAttempt = 0;
-    pairFound = 0;
-    locked = false;
-    alreadyPlayed = false;
-    historic.clear();
+    nbAttempt        = 0;
+    pairFound        = 0;
+    locked           = false;
+    alreadyPlayed    = false;
+    historic.clear();*/
 
-    if (attemptLabel) {
-        attemptLabel->setText("Tentatives : 0");
-    }
-    if (pairLabel) {
-        pairLabel->setText("Paires trouvées : 0");
-    }
 
-    for(int j=1 ; j<=100 ; j++){
-        int rdmValueH = QRandomGenerator::global()->bounded(cardsValues.size());
-        int rdmValueL = QRandomGenerator::global()->bounded(cardsValues.size());
-    }
+    while(pairFound < nbPairs){
 
-    //pour chaque valeur v on trouve les 2 cartes correspondantes
-    for (int v = 1; v <= nbPairs; v++) {
-        int firstIndex = -1;
-        int secondIndex = -1;
+        int coupsAleatoires = 0; //Pour chaque retour de boucle on réinitialise à 0
 
-        //Chercher les 2 indices i tels que cardsValues[i] == v
-        for (int i = 0; i < nbCards; i++) {
-            if (cardsValues[i] == v) {
-                if (firstIndex == -1)
-                    firstIndex = i;
-                else {
-                    secondIndex = i;
-                    break;
+        //Partie 100 coups aléatoires
+        while (coupsAleatoires < 100) {
+
+            QVector<int> hiddenCards;
+
+            hiddenCards.reserve(nbCards);
+            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
+                if (cards[i]->text() == "?") {
+                    hiddenCards.push_back(i);
                 }
             }
+
+            if (hiddenCards.size() < 2) {
+                break; // on ne peut plus jouer de coup aléatoire
+            }
+
+            int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size()); //valeurs aléatoire faisant au max
+            int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size()); // la taille de hiddenCards
+            while(rdmValueA == rdmValueB){
+                rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+            }
+
+            int rdmHiddenCardA = hiddenCards[rdmValueA];
+            int rdmHiddenCardB = hiddenCards[rdmValueB];
+
+            cardsRegister(rdmHiddenCardA);
+            cardsRegister(rdmHiddenCardB);
+            cardsComparaison();
+
+
+            coupsAleatoires++;
         }
 
-        //Sécurité au cas où
-        if (firstIndex == -1 || secondIndex == -1)
-            continue;
 
-    cardsRegister(firstIndex);
-    cardsRegister(secondIndex);
-    cardsComparaison();
+         //Partie triche V2
+
+
+        bool foundPair = false; //Pour chaque retour de boucle on réinitialise à false
+
+        while(!foundPair){
+            QVector<int> hiddenCardsCheat;
+
+            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
+                if (cards[i]->text() == "?") {
+                    hiddenCardsCheat.push_back(i);
+                }
+            }
+
+            if (hiddenCardsCheat.size() < 2) {
+                break; // on ne peut plus jouer de coup aléatoire
+            }
+
+            int valueA = cardsValues[hiddenCardsCheat[0]]; //La valeur de la première carte du paquet
+            int valueB = -1; //On va chercher à quel indice de hiddenCardsCheat valueB vaudra valueA
+            int ind =0; //index pour boucler le while
+
+            while(valueA != valueB){
+                ind++;
+                valueB = cardsValues[hiddenCardsCheat[ind]];
+            }
+
+            if(valueA == valueB){
+                cardsRegister(hiddenCardsCheat[0]);
+                cardsRegister(hiddenCardsCheat[ind]);
+                cardsComparaison();
+                foundPair=true;
+            }
+
+
+        }
     }
     endCondition();
-
 }
+
+
+
+
 
 
 
@@ -269,9 +316,7 @@ void FirstAlgo::playGame(){
         }
     }
 
-
-    autoSolve(); // Algorithme "triche"
-
+        autoSolve(); // Algorithme "triche"
 }
 
 
