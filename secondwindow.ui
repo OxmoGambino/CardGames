@@ -139,6 +139,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string> Jouer avec l'algorithme de gros tricheur</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="SecAlgoButton">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>490</y>
+      <width>301</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string> Jouer avec l'algorithme  intelligent </string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
