@@ -41,6 +41,7 @@ if (QT_VERSION_MAJOR EQUAL 6)
     qt_add_executable(CardBoard
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
+        secondalgo.h secondalgo.cpp secondalgo.ui
 
     )
 else()
