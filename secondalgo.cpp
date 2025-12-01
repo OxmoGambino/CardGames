@@ -204,92 +204,58 @@ void SecondAlgo::endCondition(){
 
 void SecondAlgo::autoSolve(){
 
-    /*//On réinitialise bien les valeurs pour être sûr
-    firstValue       = 0;
-    secondValue      = 0;
-    firstValueIndex  = -1;
-    secondValueIndex = -1;
-    nbAttempt        = 0;
-    pairFound        = 0;
-    locked           = false;
-    alreadyPlayed    = false;
-    historic.clear();*/
-
 
     while(pairFound < nbPairs){
+        QVector<int> hiddenCards;
+        QVector<int> cardsHistoric;
 
-        int coupsAleatoires = 0; //Pour chaque retour de boucle on réinitialise à 0
-
-        //Partie 100 coups aléatoires
-        while (coupsAleatoires < 100) {
-
-            QVector<int> hiddenCards;
-
-            hiddenCards.reserve(nbCards);
-            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
-                if (cards[i]->text() == "?") {
-                    hiddenCards.push_back(i);
-                }
+        hiddenCards.reserve(nbCards);
+        for(int i=0 ; i<nbCards ; i++){
+            if(cards[i]->text()=="?"){
+                hiddenCards.push_back(i);
             }
+        }
 
-            if (hiddenCards.size() < 2) {
-                break; // on ne peut plus jouer de coup aléatoire
-            }
+        int alreadyPlayedA = 0; //Valeur différente de la condition de sortie de la boucle while
+        int alreadyPlayedB = 0;
 
-            int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size()); //valeurs aléatoire faisant au max
-            int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size()); // la taille de hiddenCards
-            while(rdmValueA == rdmValueB){
+        int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
+        int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+        int cardsTurned = cardsHistoric.size();
+        int ind=0;
+        while(rdmValueA == rdmValueB && ind<cardsTurned){  //Cette boucle permet d'avoir 2 valeurs différentes entre elles
+                                                            //et différentes des coups déjà joués
+            if(rdmValueA == rdmValueB){
                 rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
             }
 
-            int rdmHiddenCardA = hiddenCards[rdmValueA];
-            int rdmHiddenCardB = hiddenCards[rdmValueB];
-
-            cardsRegister(rdmHiddenCardA);
-            cardsRegister(rdmHiddenCardB);
-            cardsComparaison();
-
-
-            coupsAleatoires++;
-        }
-
-
-        //Partie triche V2
-
-
-        bool foundPair = false; //Pour chaque retour de boucle on réinitialise à false
-
-        while(!foundPair){
-            QVector<int> hiddenCardsCheat;
-
-            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
-                if (cards[i]->text() == "?") {
-                    hiddenCardsCheat.push_back(i);
-                }
+            if(rdmValueA == cardsHistoric[ind] && alreadyPlayedA != 2){
+                rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
+            }
+            else{
+                alreadyPlayedA = 2;
             }
 
-            if (hiddenCardsCheat.size() < 2) {
-                break; // on ne peut plus jouer de coup aléatoire
+            if(rdmValueB == cardsHistoric[ind] && alreadyPlayedB != 2){
+                rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+            }
+            else{
+                alreadyPlayedB = 2;
             }
 
-            int valueA = cardsValues[hiddenCardsCheat[0]]; //La valeur de la première carte du paquet
-            int valueB = -1; //On va chercher à quel indice de hiddenCardsCheat valueB vaudra valueA
-            int ind =0; //index pour boucler le while
-
-            while(valueA != valueB){
+            if(rdmValueA != rdmValueB && alreadyPlayedA == 2 && alreadyPlayedB == false){
+                break;
+            }
+            else{
                 ind++;
-                valueB = cardsValues[hiddenCardsCheat[ind]];
             }
-
-            if(valueA == valueB){
-                cardsRegister(hiddenCardsCheat[0]);
-                cardsRegister(hiddenCardsCheat[ind]);
-                cardsComparaison();
-                foundPair=true;
-            }
-
-
         }
+
+
+
+
+
+
     }
     endCondition();
 }
