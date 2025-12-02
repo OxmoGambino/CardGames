@@ -204,17 +204,6 @@ void FirstAlgo::endCondition(){
 
 void FirstAlgo::autoSolve(){
 
-    /*//On réinitialise bien les valeurs pour être sûr
-    firstValue       = 0;
-    secondValue      = 0;
-    firstValueIndex  = -1;
-    secondValueIndex = -1;
-    nbAttempt        = 0;
-    pairFound        = 0;
-    locked           = false;
-    alreadyPlayed    = false;
-    historic.clear();*/
-
 
     while(pairFound < nbPairs){
 

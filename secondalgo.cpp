@@ -53,7 +53,6 @@ SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
 }
 
 
-
 void SecondAlgo::createCards( ){
     nbCards = rows*cols;
     nbPairs = nbCards/2;
@@ -202,61 +201,70 @@ void SecondAlgo::endCondition(){
 
 
 
+ //Il manque un truc pour la rapidité, càd si on tourne un truc dont on a déjà la deuxième paire, on prend rdmValueB en conséquence
+
 void SecondAlgo::autoSolve(){
 
+    std::unordered_map<int, std::vector<int>> memory; //int -> valeur, & vecteur<int> -> liste des indices où est la valeur.
+    std::vector<int> hiddenCards;
+    hiddenCards.reserve(cards.size());
 
-    while(pairFound < nbPairs){
-        QVector<int> hiddenCards;
-        QVector<int> cardsHistoric;
 
-        hiddenCards.reserve(nbCards);
-        for(int i=0 ; i<nbCards ; i++){
-            if(cards[i]->text()=="?"){
+    while(nbPairs > pairFound){
+
+        hiddenCards.clear();
+        for(int i=0 ; i<cards.size(); i++){
+            if(cards[i]->text() == "?"){
                 hiddenCards.push_back(i);
             }
         }
 
-        int alreadyPlayedA = 0; //Valeur différente de la condition de sortie de la boucle while
-        int alreadyPlayedB = 0;
+        //Si on connaît déjà une paire :
+        for (auto &entry : memory) { //boucle pour parcourir un unordored_map
+            //int value = entry.first;
+            std::vector<int> &indices = entry.second;
 
-        int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
-        int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
-        int cardsTurned = cardsHistoric.size();
-        int ind=0;
-        while(rdmValueA == rdmValueB && ind<cardsTurned){  //Cette boucle permet d'avoir 2 valeurs différentes entre elles
-                                                            //et différentes des coups déjà joués
-            if(rdmValueA == rdmValueB){
-                rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
-            }
-
-            if(rdmValueA == cardsHistoric[ind] && alreadyPlayedA != 2){
-                rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
-            }
-            else{
-                alreadyPlayedA = 2;
-            }
-
-            if(rdmValueB == cardsHistoric[ind] && alreadyPlayedB != 2){
-                rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
-            }
-            else{
-                alreadyPlayedB = 2;
-            }
-
-            if(rdmValueA != rdmValueB && alreadyPlayedA == 2 && alreadyPlayedB == false){
-                break;
-            }
-            else{
-                ind++;
+            if (indices.size() == 2) {
+                int indA = indices[0];
+                int indB = indices[1];
+                if(cards[indA]->text() == "?" && cards[indB]->text() == "?"){
+                    cardsRegister(indA);
+                    cardsRegister(indB);
+                    cardsComparaison();
+                }
             }
         }
 
 
+        //si on ne connaît aucune paire :
+        int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
+        int indexA = hiddenCards[rdmValueA];
+        int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+        int indexB = hiddenCards[rdmValueB];
 
+        bool loopAgain = true;
+        while(rdmValueA==rdmValueB){ //Ne pas tirer deux fois la même carte
+            rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+            indexB = hiddenCards[rdmValueB];
+            }
 
+        //Donc là on a deux valeurs rdmValueA et rdmValueB qui sont différentes et dont les pairs n'ont pas encore été trouvées.
+
+        cardsRegister(indexA);
+        cardsRegister(indexB);
+        cardsComparaison();
+
+        /*if(cardsValues[rdmValueA] == cardsValues[rdmValueB]){
+            pairFoundedBool[rdmValueA] = true;
+            pairFoundedBool[rdmValueB] = true;
+        }*/
+
+        memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
+        memory[cardsValues[indexB]].push_back(indexB);
 
 
     }
+
     endCondition();
 }
 
@@ -282,6 +290,7 @@ void SecondAlgo::playGame(){
 
     autoSolve(); // Algorithme "triche"
 }
+
 
 
 
