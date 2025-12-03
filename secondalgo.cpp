@@ -1,6 +1,6 @@
-#include "firstalgo.h"
+#include "secondalgo.h"
 #include "secondwindow.h"
-#include "ui_firstalgo.h"
+#include "ui_SecondAlgo.h"
 //#include <iostream>
 #include <QGridLayout>
 #include <QWidget>
@@ -15,9 +15,9 @@
 
 
 
-FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
+SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
-    , ui(new Ui::FirstAlgo)
+    , ui(new Ui::SecondAlgo)
 
 {
     rows = rows_; //on copie la valeur du paramètre rows_ dans l'attribut rows -> donne la taille de la fenêtre précédente
@@ -53,8 +53,7 @@ FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
 }
 
 
-
-void FirstAlgo::createCards( ){
+void SecondAlgo::createCards( ){
     nbCards = rows*cols;
     nbPairs = nbCards/2;
 
@@ -82,7 +81,7 @@ void FirstAlgo::createCards( ){
 
 
 
-void FirstAlgo::shuffleCards(){
+void SecondAlgo::shuffleCards(){
     for(int i=0 ; i<nbPairs ; i++){
         int j = QRandomGenerator::global()->bounded(cardsValues.size());
         int b;
@@ -103,7 +102,7 @@ void FirstAlgo::shuffleCards(){
 
 
 //Enregistrer et tourner les cartes cliquées
-void FirstAlgo::cardsRegister(int index){
+void SecondAlgo::cardsRegister(int index){
     QString current = cards[index]->text();
     //Enregistrer la valeur de la 1ère carte
     if (firstValue == 0 && secondValue == 0 && current=="?"){
@@ -124,7 +123,7 @@ void FirstAlgo::cardsRegister(int index){
 
 
 
-void FirstAlgo::moveHistoric(){
+void SecondAlgo::moveHistoric(){
     int indexMove1;
     int indexMove2;
 
@@ -156,7 +155,7 @@ void FirstAlgo::moveHistoric(){
 
 
 //Regarde si les deux cartes retournées sont les mêmes
-void FirstAlgo::cardsComparaison(){
+void SecondAlgo::cardsComparaison(){
 
     if(secondValue != 0 && firstValue != 0){
         moveHistoric(); //Vérifier que ce coup n'a pas déjà été réalisé auparavent
@@ -191,7 +190,7 @@ void FirstAlgo::cardsComparaison(){
 
 
 
-void FirstAlgo::endCondition(){
+void SecondAlgo::endCondition(){
     if(pairFound == nbPairs){ //Fin de jeu (on a trouvé toute les pairs)
 
         QMessageBox::information(this,
@@ -202,84 +201,138 @@ void FirstAlgo::endCondition(){
 
 
 
-void FirstAlgo::autoSolve(){
+ //Il manque un truc pour la rapidité, càd si on tourne un truc dont on a déjà la deuxième paire, on prend rdmValueB en conséquence
+
+void SecondAlgo::autoSolve(){
+
+    std::unordered_map<int, std::vector<int>> memory; //int -> valeur, & vecteur<int> -> liste des indices où est la valeur.
+    std::vector<int> hiddenCards;
+    std::vector<bool> alreadySeen(cards.size(), false); //chaque index est initialisé à false
+    hiddenCards.reserve(cards.size());
 
 
-    while(pairFound < nbPairs){
+    while(nbPairs > pairFound){
 
-        int coupsAleatoires = 0; //Pour chaque retour de boucle on réinitialise à 0
+        bool playedKnownPair = false;
 
-        //Partie 100 coups aléatoires
-        while (coupsAleatoires < 100) {
+        hiddenCards.clear();
+        for(int i=0 ; i<cards.size(); i++){
+            if(cards[i]->text() == "?"){
+                hiddenCards.push_back(i);
+            }
+        }
 
-            QVector<int> hiddenCards;
+        //Partie 1 : Si on connaît déjà une paire
+        for (auto &entry : memory) { //boucle pour parcourir un unordored_map
+            //int value = entry.first;
+            std::vector<int> &indices = entry.second;
 
-            hiddenCards.reserve(nbCards);
-            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
-                if (cards[i]->text() == "?") {
-                    hiddenCards.push_back(i);
+            if (indices.size() >= 2) {
+                int indA = indices[0];
+                int indB = indices[1];
+                if(cards[indA]->text() == "?" && cards[indB]->text() == "?"){
+                    cardsRegister(indA);
+                    cardsRegister(indB);
+                    cardsComparaison();
+
+                    playedKnownPair = true;
+                    break;
                 }
             }
+        }
 
-            if (hiddenCards.size() < 2) {
-                break; // on ne peut plus jouer de coup aléatoire
+        if(playedKnownPair){ //On retourne dans la boucle for pour voir si on a pas d'autre pairs à tester
+            continue;
+        }
+
+
+        //Partie 2 : si on ne connaît aucune paire
+        int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
+        int indexA = hiddenCards[rdmValueA];
+
+        //Au cas où toute les cartes ont déjà eté regardées.
+        int count = 0;
+        for(int i=0 ; i<nbCards ; i++){
+            if(alreadySeen[i] == true){
+                count++;
             }
+            else{ //pour éviter trop de tour de boucle inutile
+                break;
+            }
+        }
 
-            int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size()); //valeurs aléatoire faisant au max
-            int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size()); // la taille de hiddenCards
-            while(rdmValueA == rdmValueB){
+        while(alreadySeen[indexA] == true){ //Pour ne pas tirer une carte dont on connaît déjà le contenu
+            if(count == nbCards){
+                break;
+            }
+            rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
+            indexA = hiddenCards[rdmValueA];
+        }
+
+        //Si on tourne une carte dont on connaît la paire ça les met ensemble directement
+        int indexB;
+        if(memory[cardsValues[indexA]].size() == 1 && indexA != memory[cardsValues[indexA]][0]){
+            indexB = memory[cardsValues[indexA]][0];
+        }
+
+        else{
+            int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+            indexB = hiddenCards[rdmValueB];
+
+            while(rdmValueA==rdmValueB || alreadySeen[indexB]==true){ //Ne pas tirer deux fois la même carte
                 rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+                indexB = hiddenCards[rdmValueB];
             }
-
-            int rdmHiddenCardA = hiddenCards[rdmValueA];
-            int rdmHiddenCardB = hiddenCards[rdmValueB];
-
-            cardsRegister(rdmHiddenCardA);
-            cardsRegister(rdmHiddenCardB);
-            cardsComparaison();
-
-
-            coupsAleatoires++;
         }
 
+        //Donc là on a deux valeurs rdmValueA et rdmValueB qui sont différentes et dont les pairs n'ont pas encore été trouvées.
 
-         //Partie triche V2
+        cardsRegister(indexA);
+        cardsRegister(indexB);
+        cardsComparaison();
+
+        alreadySeen[indexA] = true;
+        alreadySeen[indexB] = true;
 
 
-        bool foundPair = false; //Pour chaque retour de boucle on réinitialise à false
-
-        while(!foundPair){
-            QVector<int> hiddenCardsCheat;
-
-            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
-                if (cards[i]->text() == "?") {
-                    hiddenCardsCheat.push_back(i);
+        //Partie 3 : Remplissage de memory
+        //Condition pour éviter d'ajouter deux fois le même indice pour la même valeur dans memory
+        if(memory[cardsValues[indexA]].size() != 0){
+            if(memory[cardsValues[indexA]].size() == 1){
+                if(memory[cardsValues[indexA]][0] != indexA){
+                    memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
                 }
             }
-
-            if (hiddenCardsCheat.size() < 2) {
-                break; // on ne peut plus jouer de coup aléatoire
+            if(memory[cardsValues[indexA]].size() == 2){
+                if(memory[cardsValues[indexA]][0] != indexA && memory[cardsValues[indexA]][1] != indexA){
+                    memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
+                }
             }
-
-            int valueA = cardsValues[hiddenCardsCheat[0]]; //La valeur de la première carte du paquet
-            int valueB = -1; //On va chercher à quel indice de hiddenCardsCheat valueB vaudra valueA
-            int ind =0; //index pour boucler le while
-
-            while(valueA != valueB){
-                ind++;
-                valueB = cardsValues[hiddenCardsCheat[ind]];
-            }
-
-            if(valueA == valueB){
-                cardsRegister(hiddenCardsCheat[0]);
-                cardsRegister(hiddenCardsCheat[ind]);
-                cardsComparaison();
-                foundPair=true;
-            }
-
-
         }
+        //Si y'a encore rien dans la liste d'indices
+        else{
+            memory[cardsValues[indexA]].push_back(indexA);
+        }
+
+
+        if(memory[cardsValues[indexB]].size() != 0){
+            if(memory[cardsValues[indexB]].size() == 1){
+                if(memory[cardsValues[indexB]][0] != indexB){
+                    memory[cardsValues[indexB]].push_back(indexB);//Ajout de l'indice de la carte dans memory
+                }
+            }
+            if(memory[cardsValues[indexB]].size() == 2){
+                if(memory[cardsValues[indexB]][0] != indexB && memory[cardsValues[indexB]][1] != indexB){
+                    memory[cardsValues[indexB]].push_back(indexB);//Ajout de l'indice de la carte dans memory
+                }
+            }
+        }
+        else{
+            memory[cardsValues[indexB]].push_back(indexB);
+        }
+
     }
+
     endCondition();
 }
 
@@ -288,9 +341,7 @@ void FirstAlgo::autoSolve(){
 
 
 
-
-
-void FirstAlgo::playGame(){
+void SecondAlgo::playGame(){
     createCards();
     shuffleCards();
 
@@ -305,14 +356,15 @@ void FirstAlgo::playGame(){
         }
     }
 
-        autoSolve(); // Algorithme "triche"
+    autoSolve(); // Algorithme "triche"
 }
 
 
 
 
+
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
-void FirstAlgo::closeEvent(QCloseEvent *event){
+void SecondAlgo::closeEvent(QCloseEvent *event){
     QMessageBox msgBox;
     msgBox.setText("Voulez-vous sauvegarder la partie ?");
 
@@ -337,7 +389,7 @@ void FirstAlgo::closeEvent(QCloseEvent *event){
 
 
 
-FirstAlgo::~FirstAlgo()
+SecondAlgo::~SecondAlgo()
 {
     delete ui;
 }

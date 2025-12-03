@@ -2,6 +2,7 @@
 #include "ui_secondwindow.h"
 #include "thirdwindow.h"
 #include "firstalgo.h"
+#include "secondalgo.h"
 #include <QMessageBox>
 
 #include <QSlider>
@@ -64,6 +65,21 @@ void SecondWindow::on_AlgoButton_clicked(){
         hide();
         firstalgo = new FirstAlgo(this, hValue, lValue);
         firstalgo->show();
+    }
+
+    else{
+        QMessageBox::warning(this,"Erreur\n", "Le produit H*L doit être pair afin de continuer");
+    }
+}
+
+
+void SecondWindow::on_SecAlgoButton_clicked(){
+    bool estPair = ((hValue * lValue) % 2 == 0);
+
+    if (estPair){
+        hide();
+        secondalgo = new SecondAlgo(this, hValue, lValue);
+        secondalgo->show();
     }
 
     else{
