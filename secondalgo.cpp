@@ -207,10 +207,13 @@ void SecondAlgo::autoSolve(){
 
     std::unordered_map<int, std::vector<int>> memory; //int -> valeur, & vecteur<int> -> liste des indices où est la valeur.
     std::vector<int> hiddenCards;
+    std::vector<bool> alreadySeen(cards.size(), false); //chaque index est initialisé à false
     hiddenCards.reserve(cards.size());
 
 
     while(nbPairs > pairFound){
+
+        bool playedKnownPair = false;
 
         hiddenCards.clear();
         for(int i=0 ; i<cards.size(); i++){
@@ -219,34 +222,68 @@ void SecondAlgo::autoSolve(){
             }
         }
 
-        //Si on connaît déjà une paire :
+        //Partie 1 : Si on connaît déjà une paire
         for (auto &entry : memory) { //boucle pour parcourir un unordored_map
             //int value = entry.first;
             std::vector<int> &indices = entry.second;
 
-            if (indices.size() == 2) {
+            if (indices.size() >= 2) {
                 int indA = indices[0];
                 int indB = indices[1];
                 if(cards[indA]->text() == "?" && cards[indB]->text() == "?"){
                     cardsRegister(indA);
                     cardsRegister(indB);
                     cardsComparaison();
+
+                    playedKnownPair = true;
+                    break;
                 }
             }
         }
 
+        if(playedKnownPair){ //On retourne dans la boucle for pour voir si on a pas d'autre pairs à tester
+            continue;
+        }
 
-        //si on ne connaît aucune paire :
+
+        //Partie 2 : si on ne connaît aucune paire
         int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
         int indexA = hiddenCards[rdmValueA];
-        int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
-        int indexB = hiddenCards[rdmValueB];
 
-        bool loopAgain = true;
-        while(rdmValueA==rdmValueB){ //Ne pas tirer deux fois la même carte
-            rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
-            indexB = hiddenCards[rdmValueB];
+        //Au cas où toute les cartes ont déjà eté regardées.
+        int count = 0;
+        for(int i=0 ; i<nbCards ; i++){
+            if(alreadySeen[i] == true){
+                count++;
             }
+            else{ //pour éviter trop de tour de boucle inutile
+                break;
+            }
+        }
+
+        while(alreadySeen[indexA] == true){ //Pour ne pas tirer une carte dont on connaît déjà le contenu
+            if(count == nbCards){
+                break;
+            }
+            rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
+            indexA = hiddenCards[rdmValueA];
+        }
+
+        //Si on tourne une carte dont on connaît la paire ça les met ensemble directement
+        int indexB;
+        if(memory[cardsValues[indexA]].size() == 1 && indexA != memory[cardsValues[indexA]][0]){
+            indexB = memory[cardsValues[indexA]][0];
+        }
+
+        else{
+            int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+            indexB = hiddenCards[rdmValueB];
+
+            while(rdmValueA==rdmValueB || alreadySeen[indexB]==true){ //Ne pas tirer deux fois la même carte
+                rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
+                indexB = hiddenCards[rdmValueB];
+            }
+        }
 
         //Donc là on a deux valeurs rdmValueA et rdmValueB qui sont différentes et dont les pairs n'ont pas encore été trouvées.
 
@@ -254,14 +291,45 @@ void SecondAlgo::autoSolve(){
         cardsRegister(indexB);
         cardsComparaison();
 
-        /*if(cardsValues[rdmValueA] == cardsValues[rdmValueB]){
-            pairFoundedBool[rdmValueA] = true;
-            pairFoundedBool[rdmValueB] = true;
-        }*/
+        alreadySeen[indexA] = true;
+        alreadySeen[indexB] = true;
 
-        memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
-        memory[cardsValues[indexB]].push_back(indexB);
 
+        //Partie 3 : Remplissage de memory
+        //Condition pour éviter d'ajouter deux fois le même indice pour la même valeur dans memory
+        if(memory[cardsValues[indexA]].size() != 0){
+            if(memory[cardsValues[indexA]].size() == 1){
+                if(memory[cardsValues[indexA]][0] != indexA){
+                    memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
+                }
+            }
+            if(memory[cardsValues[indexA]].size() == 2){
+                if(memory[cardsValues[indexA]][0] != indexA && memory[cardsValues[indexA]][1] != indexA){
+                    memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
+                }
+            }
+        }
+        //Si y'a encore rien dans la liste d'indices
+        else{
+            memory[cardsValues[indexA]].push_back(indexA);
+        }
+
+
+        if(memory[cardsValues[indexB]].size() != 0){
+            if(memory[cardsValues[indexB]].size() == 1){
+                if(memory[cardsValues[indexB]][0] != indexB){
+                    memory[cardsValues[indexB]].push_back(indexB);//Ajout de l'indice de la carte dans memory
+                }
+            }
+            if(memory[cardsValues[indexB]].size() == 2){
+                if(memory[cardsValues[indexB]][0] != indexB && memory[cardsValues[indexB]][1] != indexB){
+                    memory[cardsValues[indexB]].push_back(indexB);//Ajout de l'indice de la carte dans memory
+                }
+            }
+        }
+        else{
+            memory[cardsValues[indexB]].push_back(indexB);
+        }
 
     }
 
