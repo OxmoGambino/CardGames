@@ -99,8 +99,6 @@ void ThirdWindow::createCards(){
 
 
 
-
-
 void ThirdWindow::shuffleCards(){
     for(int i=0 ; i<nbPairs ; i++){
         int j = QRandomGenerator::global()->bounded(cardsValues.size());
@@ -116,9 +114,6 @@ void ThirdWindow::shuffleCards(){
         labels[j] = c;
     }
 }
-
-
-
 
 
 
