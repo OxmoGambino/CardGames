@@ -285,6 +285,8 @@ void SecondAlgo::autoSolve(){
             }
         }
 
+
+
         //Donc là on a deux valeurs rdmValueA et rdmValueB qui sont différentes et dont les pairs n'ont pas encore été trouvées.
 
         cardsRegister(indexA);

@@ -39,9 +39,9 @@ private:
 
     QGridLayout* grid = nullptr;
 
-    QVector<QPushButton*> cards;
-    QVector<int> cardsValues;
-    QVector<QString> labels;
+    std::vector<QPushButton*> cards;
+    std::vector<int> cardsValues;
+    std::vector<QString> labels;
 
     int firstValue = 0;
     int firstValueIndex;

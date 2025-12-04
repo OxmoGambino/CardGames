@@ -428,7 +428,7 @@ void ThirdWindow::replayLoadedGame(){
     pairFound = 0;
     playedMoves.clear(); //on sait jamais, pas qu'il y ait de conflits si on ferme pas le jeu entre temps
 
-    QVector<std::pair<int,int>> loadedHist = hist;
+    std::vector<std::pair<int,int>> loadedHist = hist;
     hist.clear(); // idem, pour les prochaines parties c'est moieux si hist est vide. (à vérifier s'il ne se vide pas déjà automatiquement)
 
     for(int i = 0; i < loadedHist.size(); i++){ // boucle qui rejoue les coups

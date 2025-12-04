@@ -48,11 +48,11 @@ private:
     int nbPairs=0;
 
     QGridLayout* grid = nullptr;
-    QVector<QPushButton*> cards; //vecteur de boutons
-    QVector<int> cardsValues; // Plateau de jeu, utilisé en back pour jouer
-    QVector<QString> labels; // Plateau de jeu, utilisé en front pour afficher
+    std::vector<QPushButton*> cards; //vecteur de boutons
+    std::vector<int> cardsValues; // Plateau de jeu, utilisé en back pour jouer
+    std::vector<QString> labels; // Plateau de jeu, utilisé en front pour afficher
 
-    QVector<std::pair<int, int>> hist; // Historique complet des coups joués (non normalisé, avec doublons)
+    std::vector<std::pair<int, int>> hist; // Historique complet des coups joués (non normalisé, avec doublons)
     std::unordered_set<int> playedMoves; // Historique des coups normalisés sans doublons pour détection de coups déjà joués
 
     QLabel* attemptLabel;
