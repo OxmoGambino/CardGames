@@ -212,7 +212,7 @@ void FirstAlgo::autoSolve(){
         //Partie 100 coups aléatoires
         while (coupsAleatoires < 100) {
 
-            QVector<int> hiddenCards;
+            std::vector<int> hiddenCards;
 
             hiddenCards.reserve(nbCards);
             for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
@@ -249,7 +249,7 @@ void FirstAlgo::autoSolve(){
         bool foundPair = false; //Pour chaque retour de boucle on réinitialise à false
 
         while(!foundPair){
-            QVector<int> hiddenCardsCheat;
+            std::vector<int> hiddenCardsCheat;
 
             for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
                 if (cards[i]->text() == "?") {
@@ -276,8 +276,6 @@ void FirstAlgo::autoSolve(){
                 cardsComparaison();
                 foundPair=true;
             }
-
-
         }
     }
     endCondition();
