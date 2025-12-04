@@ -17,7 +17,7 @@
    <widget class="QSlider" name="HSlider">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>290</x>
       <y>430</y>
       <width>261</width>
       <height>16</height>
@@ -30,7 +30,7 @@
    <widget class="QSlider" name="LSlider">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>270</x>
       <y>229</y>
       <width>20</width>
       <height>211</height>
@@ -43,7 +43,7 @@
    <widget class="QLabel" name="HLabel">
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>250</x>
       <y>320</y>
       <width>49</width>
       <height>16</height>
@@ -56,7 +56,7 @@
    <widget class="QLabel" name="LLabel">
     <property name="geometry">
      <rect>
-      <x>380</x>
+      <x>420</x>
       <y>450</y>
       <width>49</width>
       <height>16</height>
@@ -74,6 +74,31 @@
       <width>151</width>
       <height>101</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: rgb(70, 130, 180);           /* Bleu normal */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 6px;
+
+    border-bottom: 5px solid rgb(50, 100, 140);    /* Ombre */
+}
+
+QPushButton:hover {
+    background-color: rgb(100, 160, 210);          /* Hover plus clair */
+    border-bottom: 5px solid rgb(70, 130, 180);
+}
+
+QPushButton:pressed {
+    background-color: rgb(55, 105, 150);           /* Pressed plus sombre */
+    border-bottom: 2px solid rgb(40, 80, 120);
+    padding-top: 8px;
+}
+</string>
     </property>
     <property name="text">
      <string>Play</string>
@@ -103,7 +128,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QLabel" name="xLabel">
     <property name="geometry">
      <rect>
-      <x>240</x>
+      <x>280</x>
       <y>210</y>
       <width>49</width>
       <height>16</height>
@@ -116,7 +141,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QLabel" name="yLabel">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>560</x>
       <y>430</y>
       <width>49</width>
       <height>16</height>
@@ -135,21 +160,71 @@ li.checked::marker { content: &quot;\2612&quot;; }
       <height>61</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: rgb(240, 140, 90);           /* Orange pêche */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 6px;
+
+    border-bottom: 5px solid rgb(200, 110, 70);    /* Ombre */
+}
+
+QPushButton:hover {
+    background-color: rgb(255, 165, 120);          /* Hover plus clair et chaud */
+    border-bottom: 5px solid rgb(220, 130, 90);
+}
+
+QPushButton:pressed {
+    background-color: rgb(210, 115, 75);           /* Pressed plus sombre */
+    border-bottom: 2px solid rgb(180, 95, 60);
+    padding-top: 8px;
+}
+</string>
+    </property>
     <property name="text">
-     <string> Jouer avec l'algorithme de gros tricheur</string>
+     <string>Algorithme avec vision</string>
     </property>
    </widget>
    <widget class="QPushButton" name="SecAlgoButton">
     <property name="geometry">
      <rect>
-      <x>470</x>
+      <x>480</x>
       <y>490</y>
       <width>301</width>
       <height>61</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: rgb(240, 140, 90);           /* Orange pêche */
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 6px;
+
+    border-bottom: 5px solid rgb(200, 110, 70);    /* Ombre */
+}
+
+QPushButton:hover {
+    background-color: rgb(255, 165, 120);          /* Hover plus clair et chaud */
+    border-bottom: 5px solid rgb(220, 130, 90);
+}
+
+QPushButton:pressed {
+    background-color: rgb(210, 115, 75);           /* Pressed plus sombre */
+    border-bottom: 2px solid rgb(180, 95, 60);
+    padding-top: 8px;
+}
+</string>
+    </property>
     <property name="text">
-     <string> Jouer avec l'algorithme  intelligent </string>
+     <string>Algorithme à l'aveugle</string>
     </property>
    </widget>
   </widget>
