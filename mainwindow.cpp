@@ -69,3 +69,18 @@ void MainWindow::on_actionLoadGame_triggered(){
 
 
 }
+
+void MainWindow::on_actionGameRules_triggered(){
+    QMessageBox::information(this,"Règles du jeu","But du jeu : \n"
+    "Retrouver toutes les paires de cartes identiques.\n\n"
+    "Règles :\n"
+    "- Le jeu se joue sur une grille de cartes face cachée.\n"
+    "- À chaque coup, deux cartes sont retournées.\n"
+    "- Si les deux cartes ont la même valeur, la paire est trouvée et reste visible.\n"
+    "- Sinon, elles sont à nouveau cachées.\n\n"
+    "Algorithmes automatiques :\n"
+    "- Algorithme 1 : joue d’abord un certain nombre de coups aléatoires, "
+    "puis utilise la triche pour révéler des paires restantes.\n"
+    "- Algorithme 2 : mémorise les cartes déjà vues pour jouer de plus en plus intelligemment.\n\n"
+    "La partie se termine lorsque toutes les paires ont été trouvées.");
+}

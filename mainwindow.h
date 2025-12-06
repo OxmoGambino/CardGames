@@ -27,7 +27,7 @@ private slots:
     void on_exitButton_clicked();
     void on_actionQuitter_triggered();
     void on_actionLoadGame_triggered();
-
+    void on_actionGameRules_triggered();
 
 private:
     QString filename;
