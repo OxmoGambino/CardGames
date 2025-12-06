@@ -77,7 +77,7 @@
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-    background-color: rgb(70, 130, 180);           /* Bleu normal */
+    background-color: rgb(70, 130, 180);           
     color: white;
     border: none;
     padding: 6px 12px;
@@ -85,23 +85,23 @@
     font-weight: bold;
     border-radius: 6px;
 
-    border-bottom: 5px solid rgb(50, 100, 140);    /* Ombre */
+    border-bottom: 5px solid rgb(50, 100, 140);    
 }
 
 QPushButton:hover {
-    background-color: rgb(100, 160, 210);          /* Hover plus clair */
+    background-color: rgb(100, 160, 210);         
     border-bottom: 5px solid rgb(70, 130, 180);
 }
 
 QPushButton:pressed {
-    background-color: rgb(55, 105, 150);           /* Pressed plus sombre */
+    background-color: rgb(55, 105, 150);           
     border-bottom: 2px solid rgb(40, 80, 120);
     padding-top: 8px;
 }
 </string>
     </property>
     <property name="text">
-     <string>Play</string>
+     <string>Jouer</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="selecLabel">
@@ -162,7 +162,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-    background-color: rgb(240, 140, 90);           /* Orange pêche */
+    background-color: rgb(240, 140, 90);          
     color: white;
     border: none;
     padding: 6px 12px;
@@ -170,16 +170,16 @@ li.checked::marker { content: &quot;\2612&quot;; }
     font-weight: bold;
     border-radius: 6px;
 
-    border-bottom: 5px solid rgb(200, 110, 70);    /* Ombre */
+    border-bottom: 5px solid rgb(200, 110, 70);  
 }
 
 QPushButton:hover {
-    background-color: rgb(255, 165, 120);          /* Hover plus clair et chaud */
+    background-color: rgb(255, 165, 120);       
     border-bottom: 5px solid rgb(220, 130, 90);
 }
 
 QPushButton:pressed {
-    background-color: rgb(210, 115, 75);           /* Pressed plus sombre */
+    background-color: rgb(210, 115, 75);           
     border-bottom: 2px solid rgb(180, 95, 60);
     padding-top: 8px;
 }
@@ -200,7 +200,7 @@ QPushButton:pressed {
     </property>
     <property name="styleSheet">
      <string notr="true">QPushButton {
-    background-color: rgb(240, 140, 90);           /* Orange pêche */
+    background-color: rgb(240, 140, 90);          
     color: white;
     border: none;
     padding: 6px 12px;
@@ -208,16 +208,16 @@ QPushButton:pressed {
     font-weight: bold;
     border-radius: 6px;
 
-    border-bottom: 5px solid rgb(200, 110, 70);    /* Ombre */
+    border-bottom: 5px solid rgb(200, 110, 70);  
 }
 
 QPushButton:hover {
-    background-color: rgb(255, 165, 120);          /* Hover plus clair et chaud */
+    background-color: rgb(255, 165, 120);       
     border-bottom: 5px solid rgb(220, 130, 90);
 }
 
 QPushButton:pressed {
-    background-color: rgb(210, 115, 75);           /* Pressed plus sombre */
+    background-color: rgb(210, 115, 75);           
     border-bottom: 2px solid rgb(180, 95, 60);
     padding-top: 8px;
 }
@@ -225,6 +225,44 @@ QPushButton:pressed {
     </property>
     <property name="text">
      <string>Algorithme à l'aveugle</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="rulesButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton {
+    background-color: rgb(90, 165, 150);          
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 6px;
+
+    border-bottom: 5px solid rgb(70, 135, 125); 
+}
+
+QPushButton:hover {
+    background-color: rgb(115, 190, 175);        
+    border-bottom: 5px solid rgb(90, 165, 150);
+}
+
+QPushButton:pressed {
+    background-color: rgb(75, 140, 125);         
+    border-bottom: 2px solid rgb(60, 110, 100);
+    padding-top: 8px;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Règles</string>
     </property>
    </widget>
   </widget>

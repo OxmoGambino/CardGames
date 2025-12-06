@@ -95,9 +95,18 @@ void ThirdWindow::cardsRegister(int index){
         updateLabels();
 
         if(!isPair){ //Cas d'échec
+            //Mettre les cartes en rouge
+            cards[firstValueIndex]->setStyleSheet("background-color: rgb(150, 50, 0); color: white; font-weight: normal;");
+            cards[secondValueIndex]->setStyleSheet("background-color: rgb(150, 50, 0); color: white; font-weight: normal;");
+
+
             QTimer::singleShot(1250, this, [this]() { //Le QTimer permet de voir l'affichage de la deuxième carte après t ms
                 cards[firstValueIndex]->setText("?");
                 cards[secondValueIndex]->setText("?");
+
+                cards[firstValueIndex]->setStyleSheet(""); //redonner le style d'origine aux cartes
+                cards[secondValueIndex]->setStyleSheet("");
+
                 firstValue = 0;
                 secondValue = 0;
                 locked = false;
@@ -105,6 +114,9 @@ void ThirdWindow::cardsRegister(int index){
         }
 
         else{ //cas de victoire
+            cards[firstValueIndex]->setStyleSheet("background-color: rgb(30, 140, 0); color: white; font-weight: bold;"); //colorier la carte en vert si la paire est bonne
+            cards[secondValueIndex]->setStyleSheet("background-color: rgb(30, 140, 0); color: white; font-weight: bold;");
+
             firstValue = 0;
             secondValue=0;
             locked=false;
@@ -202,20 +214,18 @@ void ThirdWindow::playGame(){
     for(int r=0 ; r<rows ; r++){
         for(int c=0; c<cols ; c++){
 
-            QPushButton* card = new QPushButton("?", central); //création d'un pushButton avec central pour parent et  "?" en txt
+            QPushButton* card = new QPushButton("?", central); //création d'un pushButton avec central pour parent et "?" en txt
             card->setFixedSize(120,150);
 
             grid->addWidget(card, r ,c); //Ajouter card au widget à l'emplacement r ,c
             cards.push_back(card);
 
             int index = r*cols+c; //2D vers 1D
-            //cardsValues.push_back(index);
 
             //retourner les cartes deux par deux et retournement lors de non réussite
             connect(card, &QPushButton::clicked, this, [this,index](){
-                //QString current = cards[index]->text();
 
-                if (locked==true){    //Pour ne pas pouvoir retourner + de deux cartes
+                if (locked==true){ //Pour ne pas pouvoir retourner + de deux cartes
                     return;
                 }
 
