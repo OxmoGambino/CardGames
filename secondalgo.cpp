@@ -11,20 +11,29 @@
 #include <QMessageBox>
 #include <QCloseEvent>
 //class ThirdWindow
-
+#include <QFileDialog>
 
 
 
 SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
     , ui(new Ui::SecondAlgo)
-
+    , engine(rows_,cols_)
 {
-    rows = rows_; //on copie la valeur du paramètre rows_ dans l'attribut rows -> donne la taille de la fenêtre précédente
-    cols = cols_; //idem
 
     ui->setupUi(this);
 
+    initializeGUI();
+
+    engine.createCards();
+    engine.shuffleCards();
+
+
+    playGame();
+    autoSolve();
+}
+
+void SecondAlgo::initializeGUI(){
     //Création de la grille avec cartes et les infos du nombre de tentatives et du nombre de pairs trouvées
     central = new QWidget(this); //widget qui contiendra la grille
     QVBoxLayout* mainLayout = new QVBoxLayout(central); //layout vertical
@@ -47,155 +56,31 @@ SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
     mainLayout->addLayout(grid);
 
     setLayout(mainLayout);
-
-
-    playGame();
 }
 
+void SecondAlgo::updateDisplay() { //affichage des cartes
+    attemptLabel->setText("Tentatives : " + QString::number(engine.getAttempts()));
+    pairLabel->setText("Paires trouvées : " + QString::number(engine.getPairsFound()));
 
-void SecondAlgo::createCards( ){
-    nbCards = rows*cols;
-    nbPairs = nbCards/2;
+    // Afficher les cartes trouvées
+    const auto& hist = engine.getHistory();
+    for (const auto& move : hist) {
+        int idx1 = move.first;
+        int idx2 = move.second;
 
-    cards.clear(); //au cas où
-    cardsValues.clear();
-    labels.clear();
-
-    cards.reserve(nbCards); //Allouer assez de places dans la grille pour toutes les cartes
-    cardsValues.reserve(nbCards);
-
-    //cardValues -> comparer les valeurs des cartes plus tard et labels -> noms affiché sur les cartes
-    for(int v=1; v<nbPairs+1 ; v++){
-        cardsValues.push_back(v);
-        cardsValues.push_back(v); //On veut deux fois chaques valeurs pour que les cartes aillent par pairs
-
-
-        labels.push_back(QString::number(v) + "A"); //Nom qui sera affiché sur les cartes
-        labels.push_back(QString::number(v) + "B");
-    }
-}
-
-
-
-
-
-
-
-void SecondAlgo::shuffleCards(){
-    for(int i=0 ; i<nbPairs ; i++){
-        int j = QRandomGenerator::global()->bounded(cardsValues.size());
-        int b;
-        QString c;
-        b = cardsValues[i];
-        cardsValues[i] = cardsValues[j];
-        cardsValues[j] = b;
-
-        c = labels[i];
-        labels[i] = labels[j];
-        labels[j] = c;
-    }
-}
-
-
-
-
-
-
-//Enregistrer et tourner les cartes cliquées
-void SecondAlgo::cardsRegister(int index){
-    QString current = cards[index]->text();
-    //Enregistrer la valeur de la 1ère carte
-    if (firstValue == 0 && secondValue == 0 && current=="?"){
-        cards[index]->setText(labels[index]);
-        firstValue = cardsValues[index];
-        firstValueIndex = index;
-    }
-
-    //Enregistrer la valeur de la seconde carte
-    if (firstValue!=0 && secondValue == 0 && current=="?" && index != firstValueIndex){
-        cards[index]->setText(labels[index]);
-        secondValue = cardsValues[index];
-        secondValueIndex = index;
-        locked = true;
-    }
-}
-
-
-
-
-void SecondAlgo::moveHistoric(){
-    int indexMove1;
-    int indexMove2;
-
-    if(firstValueIndex <= secondValueIndex){
-        indexMove1 = firstValueIndex;
-        indexMove2 = secondValueIndex;
-    }
-    if(firstValueIndex > secondValueIndex){
-        indexMove2 = firstValueIndex;
-        indexMove1 = secondValueIndex;
-    }
-
-
-    std::string s1 = std::to_string(indexMove1);
-    std::string s2 = std::to_string(indexMove2);
-
-
-    int moveConcatenation = std::stoi(s1+s2);
-
-    if(historic.contains(moveConcatenation)==false){
-        historic.insert(moveConcatenation);
-    }
-    else{
-        nbAttempt++;
-    }
-
-}
-
-
-
-//Regarde si les deux cartes retournées sont les mêmes
-void SecondAlgo::cardsComparaison(){
-
-    if(secondValue != 0 && firstValue != 0){
-        moveHistoric(); //Vérifier que ce coup n'a pas déjà été réalisé auparavent
-        nbAttempt ++;
-        attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
-
-        if(firstValue==secondValue){
-            firstValue = 0;
-            secondValue=0;
-            locked=false;
-            pairFound++;
-            pairLabel->setText("Paires trouvées : " + QString::number(pairFound));
+        if (engine.getCardValue(idx1) == engine.getCardValue(idx2)) {
+            cards[idx1]->setText(engine.getLabel(idx1));
+            cards[idx2]->setText(engine.getLabel(idx2));
         }
-
-        //Cas d'échec
-        else{
-            cards[firstValueIndex]->setText("?");
-            cards[secondValueIndex]->setText("?");
-            firstValue = 0;
-            secondValue = 0;
-            locked = false;
-        }
-
-        //Cas de réussite
-
     }
 }
-
-
-
-
-
-
 
 void SecondAlgo::endCondition(){
-    if(pairFound == nbPairs){ //Fin de jeu (on a trouvé toute les pairs)
+    if(engine.getPairsFound() == engine.getNbPairs()){ //Fin de jeu (on a trouvé toute les pairs)
 
         QMessageBox::information(this,
                                  "Vous avez gagné !",
-                                 "Bravo, vous avez trouvé toutes les paires en " + QString::number(nbAttempt) + " coups !");
+                                 "Bravo, vous avez trouvé toutes les paires en " + QString::number(engine.getAttempts()) + " coups !");
     }
 }
 
@@ -209,15 +94,18 @@ void SecondAlgo::autoSolve(){
     std::vector<int> hiddenCards;
     std::vector<bool> alreadySeen(cards.size(), false); //chaque index est initialisé à false
     hiddenCards.reserve(cards.size());
+    std::vector<bool> revealed(cards.size(), false); //permet de remplacer les cards[i]->text() == "?"){ pcq ça buggait mais jsp pq
+    revealed.reserve(cards.size());
 
-
-    while(nbPairs > pairFound){
+    while(engine.getNbPairs() > engine.getPairsFound()){
 
         bool playedKnownPair = false;
 
         hiddenCards.clear();
-        for(int i=0 ; i<cards.size(); i++){
-            if(cards[i]->text() == "?"){
+
+
+        for(int i=0 ; i<engine.getNbCards(); i++){
+            if(!revealed[i]){
                 hiddenCards.push_back(i);
             }
         }
@@ -230,10 +118,10 @@ void SecondAlgo::autoSolve(){
             if (indices.size() >= 2) {
                 int indA = indices[0];
                 int indB = indices[1];
-                if(cards[indA]->text() == "?" && cards[indB]->text() == "?"){
-                    cardsRegister(indA);
-                    cardsRegister(indB);
-                    cardsComparaison();
+                if(!revealed[indA] && !revealed[indB]){
+                    engine.playMove(indA,indB);
+                    revealed[indA] = true;
+                    revealed[indB] = true;
 
                     playedKnownPair = true;
                     break;
@@ -247,12 +135,16 @@ void SecondAlgo::autoSolve(){
 
 
         //Partie 2 : si on ne connaît aucune paire
+        if (hiddenCards.size()<2){ // plus de cartes à trouver, un tour de boucle en moins
+            break;
+        }
+
         int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
         int indexA = hiddenCards[rdmValueA];
 
         //Au cas où toute les cartes ont déjà eté regardées.
         int count = 0;
-        for(int i=0 ; i<nbCards ; i++){
+        for(int i=0 ; i<engine.getNbCards() ; i++){
             if(alreadySeen[i] == true){
                 count++;
             }
@@ -262,7 +154,7 @@ void SecondAlgo::autoSolve(){
         }
 
         while(alreadySeen[indexA] == true){ //Pour ne pas tirer une carte dont on connaît déjà le contenu
-            if(count == nbCards){
+            if(count == engine.getNbCards()){
                 break;
             }
             rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size());
@@ -271,15 +163,15 @@ void SecondAlgo::autoSolve(){
 
         //Si on tourne une carte dont on connaît la paire ça les met ensemble directement
         int indexB;
-        if(memory[cardsValues[indexA]].size() == 1 && indexA != memory[cardsValues[indexA]][0]){
-            indexB = memory[cardsValues[indexA]][0];
+        if(memory[engine.getCardValue(indexA)].size() == 1 && indexA != memory[engine.getCardValue(indexA)][0]){
+            indexB = memory[engine.getCardValue(indexA)][0];
         }
 
         else{
             int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
             indexB = hiddenCards[rdmValueB];
 
-            while(rdmValueA==rdmValueB || alreadySeen[indexB]==true){ //Ne pas tirer deux fois la même carte
+            while(indexA==indexB || alreadySeen[indexB]==true){ //Ne pas tirer deux fois la même carte
                 rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
                 indexB = hiddenCards[rdmValueB];
             }
@@ -289,52 +181,55 @@ void SecondAlgo::autoSolve(){
 
         //Donc là on a deux valeurs rdmValueA et rdmValueB qui sont différentes et dont les pairs n'ont pas encore été trouvées.
 
-        cardsRegister(indexA);
-        cardsRegister(indexB);
-        cardsComparaison();
+        bool isPair = engine.playMove(indexA,indexB);
 
         alreadySeen[indexA] = true;
         alreadySeen[indexB] = true;
 
+        if (isPair){
+            revealed[indexA] = true;
+            revealed[indexB] = true;
+        }
+
 
         //Partie 3 : Remplissage de memory
         //Condition pour éviter d'ajouter deux fois le même indice pour la même valeur dans memory
-        if(memory[cardsValues[indexA]].size() != 0){
-            if(memory[cardsValues[indexA]].size() == 1){
-                if(memory[cardsValues[indexA]][0] != indexA){
-                    memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
+        if(memory[engine.getCardValue(indexA)].size() != 0){
+            if(memory[engine.getCardValue(indexA)].size() == 1){
+                if(memory[engine.getCardValue(indexA)][0] != indexA){
+                    memory[engine.getCardValue(indexA)].push_back(indexA);//Ajout de l'indice de la carte dans memory
                 }
             }
-            if(memory[cardsValues[indexA]].size() == 2){
-                if(memory[cardsValues[indexA]][0] != indexA && memory[cardsValues[indexA]][1] != indexA){
-                    memory[cardsValues[indexA]].push_back(indexA);//Ajout de l'indice de la carte dans memory
+            if(memory[engine.getCardValue(indexA)].size() == 2){
+                if(memory[engine.getCardValue(indexA)][0] != indexA && memory[engine.getCardValue(indexA)][1] != indexA){
+                    memory[engine.getCardValue(indexA)].push_back(indexA);//Ajout de l'indice de la carte dans memory
                 }
             }
         }
         //Si y'a encore rien dans la liste d'indices
         else{
-            memory[cardsValues[indexA]].push_back(indexA);
+            memory[engine.getCardValue(indexA)].push_back(indexA);
         }
 
 
-        if(memory[cardsValues[indexB]].size() != 0){
-            if(memory[cardsValues[indexB]].size() == 1){
-                if(memory[cardsValues[indexB]][0] != indexB){
-                    memory[cardsValues[indexB]].push_back(indexB);//Ajout de l'indice de la carte dans memory
+        if(memory[engine.getCardValue(indexB)].size() != 0){
+            if(memory[engine.getCardValue(indexB)].size() == 1){
+                if(memory[engine.getCardValue(indexB)][0] != indexB){
+                    memory[engine.getCardValue(indexB)].push_back(indexB);//Ajout de l'indice de la carte dans memory
                 }
             }
-            if(memory[cardsValues[indexB]].size() == 2){
-                if(memory[cardsValues[indexB]][0] != indexB && memory[cardsValues[indexB]][1] != indexB){
-                    memory[cardsValues[indexB]].push_back(indexB);//Ajout de l'indice de la carte dans memory
+            if(memory[engine.getCardValue(indexB)].size() == 2){
+                if(memory[engine.getCardValue(indexB)][0] != indexB && memory[engine.getCardValue(indexB)][1] != indexB){
+                    memory[engine.getCardValue(indexB)].push_back(indexB);//Ajout de l'indice de la carte dans memory
                 }
             }
         }
         else{
-            memory[cardsValues[indexB]].push_back(indexB);
+            memory[engine.getCardValue(indexB)].push_back(indexB);
         }
 
     }
-
+    updateDisplay();
     endCondition();
 }
 
@@ -344,9 +239,9 @@ void SecondAlgo::autoSolve(){
 
 
 void SecondAlgo::playGame(){
-    createCards();
-    shuffleCards();
 
+    int rows = engine.getRows();
+    int cols = engine.getCols();
     //Création de la grille
     for(int r = 0; r < rows; ++r){
         for(int c = 0; c < cols; ++c){
@@ -357,12 +252,7 @@ void SecondAlgo::playGame(){
             cards.push_back(card);
         }
     }
-
-    autoSolve(); // Algorithme "triche"
 }
-
-
-
 
 
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
@@ -376,11 +266,18 @@ void SecondAlgo::closeEvent(QCloseEvent *event){
     msgBox.exec();
 
     if(msgBox.clickedButton()==saveButton){
-        //GuiGui's Function
+        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","Text files (*.txt) ;; All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
+        // Text files : suggestion par défault. All Files : deuxième filtre si l'utilisateur veut mettre une extension particulière.
+
+        if(!filename.isEmpty()) { //vérification d'un nom valide
+            engine.saveGame(filename);
+            event -> accept(); //fermer la fenêtre
+        }
+        else{event->ignore();}
     }
 
     else if(msgBox.clickedButton()==leaveButton){
-        hide();
+        event->accept(); //fermer la feêntre
     }
 }
 
