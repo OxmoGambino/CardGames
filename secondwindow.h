@@ -23,6 +23,7 @@ private slots:
     void on_actionQuitter_triggered();
     void on_HSlide_valueChanged(int value);
     void on_LSlide_valueChanged(int value);
+    void on_rulesButton_clicked();
 
 private:
     Ui::SecondWindow *ui;

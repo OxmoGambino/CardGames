@@ -44,6 +44,9 @@ void FirstAlgo::updateDisplay() { //affichage des cartes
         if (engine.getCardValue(idx1) == engine.getCardValue(idx2)) {
             cards[idx1]->setText(engine.getLabel(idx1));
             cards[idx2]->setText(engine.getLabel(idx2));
+
+            cards[idx1]->setStyleSheet("background-color: rgb(30, 140, 0); color: white; font-weight: normal;");
+            cards[idx2]->setStyleSheet("background-color: rgb(30, 140, 0); color: white; font-weight: normal;");
         }
     }
 }
@@ -76,12 +79,80 @@ void FirstAlgo::initializeGUI(){
 }
 
 
-void FirstAlgo::endCondition(){
+/*void FirstAlgo::endCondition(){
     if(engine.getPairsFound() == engine.getNbPairs()){ //Fin de jeu (on a trouvé toute les pairs)
 
         QMessageBox::information(this,"Vous avez gagné !", "Bravo, vous avez trouvé toutes les paires en " + QString::number(engine.getAttempts()) + " coups !");
     }
+}*/
+
+void FirstAlgo::endCondition(){
+    qDebug() << ">>> endCondition appelée, pairFound:" << engine.getPairsFound() << "nbPairs:" << engine.getNbPairs();
+
+    if(engine.getPairsFound() == engine.getNbPairs()){
+        qDebug() << ">>> Condition vérifiée, partie terminée";
+
+        QMessageBox msgBox;
+        msgBox.setInformativeText("Vous avez gagné !");
+        msgBox.setText("Bravo, vous avez trouvé toutes les paires en " +
+                       QString::number(engine.getAttempts()) + " coups !");
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+
+        QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
+        QAbstractButton *cancelButton = msgBox.button(QMessageBox::Cancel);
+
+        saveButton->setText("Sauvegarder");
+        cancelButton->setText("Quitter");
+
+        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
+
+        msgBox.setDefaultButton(QMessageBox::Cancel);
+
+        qDebug() << ">>> Affichage du QMessageBox";
+        msgBox.exec();
+        qDebug() << ">>> QMessageBox fermé";
+
+        qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
+
+        if (msgBox.clickedButton() == saveButton){
+            qDebug() << ">>> Bouton SAUVEGARDER cliqué";
+
+            QString filename = QFileDialog::getSaveFileName(
+                this,
+                "Sauvegarder la partie",
+                "",
+                "Text files (*.txt);;All files (*)",
+                nullptr,
+                QFileDialog::DontUseNativeDialog
+                );
+
+            qDebug() << ">>> QFileDialog fermé, filename:" << filename;
+
+            if(!filename.isEmpty()) {
+                qDebug() << ">>> Appel de saveGame()";
+                engine.saveGame(filename);
+                qDebug() << ">>> Retour de saveGame()";
+            } else {
+                qDebug() << ">>> Filename vide, sauvegarde annulée";
+            }
+        }
+        else if (msgBox.clickedButton() == cancelButton){
+            qDebug() << ">>> Bouton QUITTER cliqué";
+            hide();
+        }
+        else if (msgBox.clickedButton() == retryButton){
+            qDebug() << ">>> Bouton REJOUER cliqué";
+            hide();
+            secondwindow = new SecondWindow(nullptr); //nullptr pour ne pas avoir this en parent pour ne pas être lié si l'un est fermé
+            secondwindow->show();
+        }
+
+        qDebug() << ">>> Fin de endCondition";
+    } else {
+        qDebug() << ">>> Condition NON vérifiée";
+    }
 }
+
 
 
 void FirstAlgo::autoSolve(){
@@ -168,7 +239,7 @@ void FirstAlgo::autoSolve(){
     }
     endCondition();
     updateDisplay(); //appelé uniquement à la fin car pas besoin d'affichage avant la fin de l'algo
-    QMessageBox::information(this, "Algorithme terminé","Toutes les paires trouvées en " + QString::number(engine.getAttempts()) + " coups !");
+    //QMessageBox::information(this, "Algorithme terminé","Toutes les paires trouvées en " + QString::number(engine.getAttempts()) + " coups !");
 }
 
 void FirstAlgo::playGame(){

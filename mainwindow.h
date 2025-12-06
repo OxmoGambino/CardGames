@@ -29,6 +29,7 @@ private slots:
     void on_actionLoadGame_triggered();
     void on_actionGameRules_triggered();
 
+
 private:
     QString filename;
     Ui::MainWindow *ui;
