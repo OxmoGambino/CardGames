@@ -34,6 +34,11 @@ set(PROJECT_SOURCES
     firstalgo.h
     firstalgo.cpp
     firstalgo.ui
+    gameengine.h
+    gameengine.cpp
+    secondalgo.h
+    secondalgo.cpp
+    secondalgo.ui
 )
 
 # Cible
@@ -41,8 +46,6 @@ if (QT_VERSION_MAJOR EQUAL 6)
     qt_add_executable(CardBoard
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        secondalgo.h secondalgo.cpp secondalgo.ui
-
     )
 else()
     add_executable(CardBoard

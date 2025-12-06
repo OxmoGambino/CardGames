@@ -1,6 +1,7 @@
 #include "firstalgo.h"
 #include "secondwindow.h"
 #include "ui_firstalgo.h"
+#include "gameengine.h"
 //#include <iostream>
 #include <QGridLayout>
 #include <QWidget>
@@ -9,22 +10,46 @@
 #include <QRandomGenerator>
 #include <QTimer>
 #include <QMessageBox>
+#include <QFile>
+#include <QFileDialog>
 #include <QCloseEvent>
-//class ThirdWindow
-
-
-
 
 FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
     , ui(new Ui::FirstAlgo)
+    , engine(rows_,cols_)
 
 {
-    rows = rows_; //on copie la valeur du paramètre rows_ dans l'attribut rows -> donne la taille de la fenêtre précédente
-    cols = cols_; //idem
-
     ui->setupUi(this);
 
+    initializeGUI();
+
+    engine.createCards();
+    engine.shuffleCards();
+
+    playGame(); //affichage graphique
+    autoSolve();
+}
+
+void FirstAlgo::updateDisplay() { //affichage des cartes
+    attemptLabel->setText("Tentatives : " + QString::number(engine.getAttempts()));
+    pairLabel->setText("Paires trouvées : " + QString::number(engine.getPairsFound()));
+
+    // Afficher les cartes trouvées
+    const auto& hist = engine.getHistory();
+    for (const auto& move : hist) {
+        int idx1 = move.first;
+        int idx2 = move.second;
+
+        if (engine.getCardValue(idx1) == engine.getCardValue(idx2)) {
+            cards[idx1]->setText(engine.getLabel(idx1));
+            cards[idx2]->setText(engine.getLabel(idx2));
+        }
+    }
+}
+
+
+void FirstAlgo::initializeGUI(){
     //Création de la grille avec cartes et les infos du nombre de tentatives et du nombre de pairs trouvées
     central = new QWidget(this); //widget qui contiendra la grille
     QVBoxLayout* mainLayout = new QVBoxLayout(central); //layout vertical
@@ -47,176 +72,33 @@ FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
     mainLayout->addLayout(grid);
 
     setLayout(mainLayout);
-
-
-    playGame();
+    revealed.resize(engine.getNbCards(), false); //construction d'un vecteur qui indiquera les cartes revélées (init a false)
 }
-
-
-
-void FirstAlgo::createCards( ){
-    nbCards = rows*cols;
-    nbPairs = nbCards/2;
-
-    cards.clear(); //au cas où
-    cardsValues.clear();
-    labels.clear();
-
-    cards.reserve(nbCards); //Allouer assez de places dans la grille pour toutes les cartes
-    cardsValues.reserve(nbCards);
-
-    //cardValues -> comparer les valeurs des cartes plus tard et labels -> noms affiché sur les cartes
-    for(int v=1; v<nbPairs+1 ; v++){
-        cardsValues.push_back(v);
-        cardsValues.push_back(v); //On veut deux fois chaques valeurs pour que les cartes aillent par pairs
-
-
-        labels.push_back(QString::number(v) + "A"); //Nom qui sera affiché sur les cartes
-        labels.push_back(QString::number(v) + "B");
-    }
-}
-
-
-
-
-
-
-
-void FirstAlgo::shuffleCards(){
-    for(int i=0 ; i<nbPairs ; i++){
-        int j = QRandomGenerator::global()->bounded(cardsValues.size());
-        int b;
-        QString c;
-        b = cardsValues[i];
-        cardsValues[i] = cardsValues[j];
-        cardsValues[j] = b;
-
-        c = labels[i];
-        labels[i] = labels[j];
-        labels[j] = c;
-    }
-}
-
-
-
-
-
-
-//Enregistrer et tourner les cartes cliquées
-void FirstAlgo::cardsRegister(int index){
-    QString current = cards[index]->text();
-    //Enregistrer la valeur de la 1ère carte
-    if (firstValue == 0 && secondValue == 0 && current=="?"){
-        cards[index]->setText(labels[index]);
-        firstValue = cardsValues[index];
-        firstValueIndex = index;
-    }
-
-    //Enregistrer la valeur de la seconde carte
-    if (firstValue!=0 && secondValue == 0 && current=="?" && index != firstValueIndex){
-        cards[index]->setText(labels[index]);
-        secondValue = cardsValues[index];
-        secondValueIndex = index;
-        locked = true;
-    }
-}
-
-
-
-
-void FirstAlgo::moveHistoric(){
-    int indexMove1;
-    int indexMove2;
-
-    if(firstValueIndex <= secondValueIndex){
-        indexMove1 = firstValueIndex;
-        indexMove2 = secondValueIndex;
-    }
-    if(firstValueIndex > secondValueIndex){
-        indexMove2 = firstValueIndex;
-        indexMove1 = secondValueIndex;
-    }
-
-
-    std::string s1 = std::to_string(indexMove1);
-    std::string s2 = std::to_string(indexMove2);
-
-
-    int moveConcatenation = std::stoi(s1+s2);
-
-    if(historic.contains(moveConcatenation)==false){
-        historic.insert(moveConcatenation);
-    }
-    else{
-        nbAttempt++;
-    }
-
-}
-
-
-
-//Regarde si les deux cartes retournées sont les mêmes
-void FirstAlgo::cardsComparaison(){
-
-    if(secondValue != 0 && firstValue != 0){
-        moveHistoric(); //Vérifier que ce coup n'a pas déjà été réalisé auparavent
-        nbAttempt ++;
-        attemptLabel->setText("Tentatives : " + QString::number(nbAttempt));
-
-        if(firstValue==secondValue){
-            firstValue = 0;
-            secondValue=0;
-            locked=false;
-            pairFound++;
-            pairLabel->setText("Paires trouvées : " + QString::number(pairFound));
-        }
-
-        //Cas d'échec
-        else{
-            cards[firstValueIndex]->setText("?");
-            cards[secondValueIndex]->setText("?");
-            firstValue = 0;
-            secondValue = 0;
-            locked = false;
-        }
-
-        //Cas de réussite
-
-    }
-}
-
-
-
-
-
 
 
 void FirstAlgo::endCondition(){
-    if(pairFound == nbPairs){ //Fin de jeu (on a trouvé toute les pairs)
+    if(engine.getPairsFound() == engine.getNbPairs()){ //Fin de jeu (on a trouvé toute les pairs)
 
-        QMessageBox::information(this,
-                                 "Vous avez gagné !",
-                                 "Bravo, vous avez trouvé toutes les paires en " + QString::number(nbAttempt) + " coups !");
+        QMessageBox::information(this,"Vous avez gagné !", "Bravo, vous avez trouvé toutes les paires en " + QString::number(engine.getAttempts()) + " coups !");
     }
 }
-
 
 
 void FirstAlgo::autoSolve(){
 
 
-    while(pairFound < nbPairs){
+    while(engine.getPairsFound() < engine.getNbPairs()){
 
         int coupsAleatoires = 0; //Pour chaque retour de boucle on réinitialise à 0
 
         //Partie 100 coups aléatoires
-        while (coupsAleatoires < 100) {
+        while (coupsAleatoires < 100 && engine.getPairsFound() < engine.getNbPairs()){ //la deuxième condition permet de de s'arrêter de jouer si on a trouvé toutes les paires
 
             std::vector<int> hiddenCards;
 
-            hiddenCards.reserve(nbCards);
-            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
-                if (cards[i]->text() == "?") {
+            hiddenCards.reserve(engine.getNbCards());
+            for (int i = 0; i < engine.getNbCards(); ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
+                if (!revealed[i]) {
                     hiddenCards.push_back(i);
                 }
             }
@@ -227,6 +109,7 @@ void FirstAlgo::autoSolve(){
 
             int rdmValueA = QRandomGenerator::global()->bounded(hiddenCards.size()); //valeurs aléatoire faisant au max
             int rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size()); // la taille de hiddenCards
+
             while(rdmValueA == rdmValueB){
                 rdmValueB = QRandomGenerator::global()->bounded(hiddenCards.size());
             }
@@ -234,15 +117,17 @@ void FirstAlgo::autoSolve(){
             int rdmHiddenCardA = hiddenCards[rdmValueA];
             int rdmHiddenCardB = hiddenCards[rdmValueB];
 
-            cardsRegister(rdmHiddenCardA);
-            cardsRegister(rdmHiddenCardB);
-            cardsComparaison();
-
-
+            bool isPair = engine.playMove(rdmHiddenCardA, rdmHiddenCardB);//permet de jouer le coup
+            if (isPair) {
+                revealed[rdmHiddenCardA] = true;
+                revealed[rdmHiddenCardB] = true;
+            }
             coupsAleatoires++;
         }
 
-
+        if (engine.getPairsFound()==engine.getNbPairs()){//condition d'arrêt si pas besoin de tricher
+            break;
+        }
          //Partie triche V2
 
 
@@ -251,8 +136,8 @@ void FirstAlgo::autoSolve(){
         while(!foundPair){
             std::vector<int> hiddenCardsCheat;
 
-            for (int i = 0; i < nbCards; ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
-                if (cards[i]->text() == "?") {
+            for (int i = 0; i < engine.getNbCards(); ++i) {  //Toute les cartes avec "?" vont dans hiddenCards
+                if (!revealed[i]) {
                     hiddenCardsCheat.push_back(i);
                 }
             }
@@ -261,36 +146,33 @@ void FirstAlgo::autoSolve(){
                 break; // on ne peut plus jouer de coup aléatoire
             }
 
-            int valueA = cardsValues[hiddenCardsCheat[0]]; //La valeur de la première carte du paquet
+            int valueA = engine.getCardValue(hiddenCardsCheat[0]); //La valeur de la première carte du paquet
             int valueB = -1; //On va chercher à quel indice de hiddenCardsCheat valueB vaudra valueA
-            int ind =0; //index pour boucler le while
+            int ind =-1; //index pour boucler le while
 
-            while(valueA != valueB){
-                ind++;
-                valueB = cardsValues[hiddenCardsCheat[ind]];
+            for (int i = 1; i < hiddenCardsCheat.size(); ++i) {
+                if (engine.getCardValue(hiddenCardsCheat[i]) == valueA) {
+                    ind = i;
+                    valueB = engine.getCardValue(hiddenCardsCheat[ind]);
+                    break;
+                }
             }
 
-            if(valueA == valueB){
-                cardsRegister(hiddenCardsCheat[0]);
-                cardsRegister(hiddenCardsCheat[ind]);
-                cardsComparaison();
-                foundPair=true;
+            if (ind != -1) { // si on a trouvé une paire
+                engine.playMove(hiddenCardsCheat[0], hiddenCardsCheat[ind]);// si la paire est une paire, on joue le coup
+                revealed[hiddenCardsCheat[0]] = true; //on update les cartes revealed
+                revealed[hiddenCardsCheat[ind]] = true;
             }
         }
     }
     endCondition();
+    updateDisplay(); //appelé uniquement à la fin car pas besoin d'affichage avant la fin de l'algo
+    QMessageBox::information(this, "Algorithme terminé","Toutes les paires trouvées en " + QString::number(engine.getAttempts()) + " coups !");
 }
 
-
-
-
-
-
-
-
 void FirstAlgo::playGame(){
-    createCards();
-    shuffleCards();
+    int rows = engine.getRows();
+    int cols = engine.getCols();
 
     //Création de la grille
     for(int r = 0; r < rows; ++r){
@@ -302,12 +184,7 @@ void FirstAlgo::playGame(){
             cards.push_back(card);
         }
     }
-
-        autoSolve(); // Algorithme "triche"
 }
-
-
-
 
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
 void FirstAlgo::closeEvent(QCloseEvent *event){
@@ -320,20 +197,20 @@ void FirstAlgo::closeEvent(QCloseEvent *event){
     msgBox.exec();
 
     if(msgBox.clickedButton()==saveButton){
-        //GuiGui's Function
+        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","Text files (*.txt) ;; All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
+        // Text files : suggestion par défault. All Files : deuxième filtre si l'utilisateur veut mettre une extension particulière.
+
+        if(!filename.isEmpty()) { //vérification d'un nom valide
+            engine.saveGame(filename);
+            event -> accept(); //fermer la fenêtre
+        }
+        else{event->ignore();}
     }
 
     else if(msgBox.clickedButton()==leaveButton){
-        hide();
+        event -> accept();
     }
 }
-
-
-
-
-
-
-
 
 FirstAlgo::~FirstAlgo()
 {
