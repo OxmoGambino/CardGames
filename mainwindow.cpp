@@ -15,8 +15,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionQuitter, &QAction::triggered,
             this, &MainWindow::on_actionQuitter_triggered);
 
-    ui->exitButton->setText("Exit");
     ui->startButton->setText("Play");
+    ui->exitButton->setText("Exit");
 }
 
 MainWindow::~MainWindow()
