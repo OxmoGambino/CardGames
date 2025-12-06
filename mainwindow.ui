@@ -139,6 +139,8 @@ QPushButton:pressed {
     <addaction name="actionQuitter"/>
     <addaction name="separator"/>
     <addaction name="actionLoadGame"/>
+    <addaction name="separator"/>
+    <addaction name="actionGameRules"/>
    </widget>
    <addaction name="menufichier"/>
   </widget>
@@ -151,6 +153,11 @@ QPushButton:pressed {
   <action name="actionLoadGame">
    <property name="text">
     <string>Charger une partie</string>
+   </property>
+  </action>
+  <action name="actionGameRules">
+   <property name="text">
+    <string>Règles du jeu</string>
    </property>
   </action>
  </widget>
