@@ -162,6 +162,7 @@ void FirstAlgo::autoSolve(){
                 engine.playMove(hiddenCardsCheat[0], hiddenCardsCheat[ind]);// si la paire est une paire, on joue le coup
                 revealed[hiddenCardsCheat[0]] = true; //on update les cartes revealed
                 revealed[hiddenCardsCheat[ind]] = true;
+                foundPair = true; //permet de sortir de la boucle de triche, sinon, triche iullimité pas bien
             }
         }
     }
