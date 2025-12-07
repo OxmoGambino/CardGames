@@ -2,9 +2,11 @@
 #include <QMainWindow>
 #include <QString>
 
+class MainWindow;
 class ThirdWindow;
 class FirstAlgo;
 class SecondAlgo;
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class SecondWindow; }
@@ -24,12 +26,14 @@ private slots:
     void on_HSlide_valueChanged(int value);
     void on_LSlide_valueChanged(int value);
     void on_rulesButton_clicked();
+    void on_backButton_clicked();
 
 private:
     Ui::SecondWindow *ui;
     ThirdWindow *thirdwindow = nullptr;
     FirstAlgo *firstalgo;
     SecondAlgo *secondalgo;
+    MainWindow *mainwindow;
     int hValue = 0;
     int lValue = 0;
 };

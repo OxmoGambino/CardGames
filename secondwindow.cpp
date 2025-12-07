@@ -1,5 +1,6 @@
 #include "secondwindow.h"
 #include "ui_secondwindow.h"
+#include "mainwindow.h"
 #include "thirdwindow.h"
 #include "firstalgo.h"
 #include "secondalgo.h"
@@ -118,4 +119,11 @@ void SecondWindow::on_rulesButton_clicked(){
     "- Algorithme à l'aveugle : Termine le jeu en faisant le moins de coups possible sans voir les cartes, "
     "mémorise les cartes déjà vues pour jouer de plus en plus intelligemment.\n\n"
     "La partie se termine lorsque toutes les paires ont été trouvées.");
+}
+
+
+void SecondWindow::on_backButton_clicked(){
+    close();
+    mainwindow = new MainWindow(this);
+    mainwindow->show();
 }

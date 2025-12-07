@@ -109,7 +109,7 @@ QPushButton:pressed {
      <rect>
       <x>100</x>
       <y>10</y>
-      <width>611</width>
+      <width>601</width>
       <height>71</height>
      </rect>
     </property>
@@ -230,7 +230,7 @@ QPushButton:pressed {
    <widget class="QPushButton" name="rulesButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>710</x>
       <y>20</y>
       <width>81</width>
       <height>61</height>
@@ -263,6 +263,43 @@ QPushButton:pressed {
     </property>
     <property name="text">
      <string>Règles</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="backButton">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>81</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton{
+    background-color: rgb(55, 160, 165);        /* Turquoise profond */
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    padding-top: 5px;
+    border-bottom: 5px solid rgb(40, 120, 125); /* Ombre foncée */
+}
+
+QPushButton:hover {
+    background-color: rgb(75, 190, 195);        /* Plus clair au survol */
+    border-bottom: 5px solid rgb(55, 145, 150);
+}
+
+QPushButton:pressed {
+    background-color: rgb(45, 130, 135);
+    border-bottom: 2px solid rgb(35, 105, 110);
+    padding-top: 7px;
+}
+</string>
+    </property>
+    <property name="text">
+     <string>Retour</string>
     </property>
    </widget>
   </widget>
