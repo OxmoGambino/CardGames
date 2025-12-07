@@ -168,7 +168,7 @@ void ThirdWindow::endCondition(){
                 this,
                 "Sauvegarder la partie",
                 "",
-                "Text files (*.txt);;All files (*)",
+                "All files (*)",
                 nullptr,
                 QFileDialog::DontUseNativeDialog
                 );
