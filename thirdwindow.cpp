@@ -264,6 +264,7 @@ void ThirdWindow::closeEvent(QCloseEvent *event){
 
     QPushButton *saveButton = msgBox.addButton("Oui", QMessageBox::ActionRole);
     QPushButton *leaveButton = msgBox.addButton("Non", QMessageBox::ActionRole);
+    QPushButton *retryButton = msgBox.addButton("Recommencer", QMessageBox::ActionRole);
 
     msgBox.exec();
 
@@ -280,6 +281,13 @@ void ThirdWindow::closeEvent(QCloseEvent *event){
 
     else if(msgBox.clickedButton()==leaveButton){
         event -> accept(); //accepter la fermeture de la fenêtre
+    }
+
+    else if (msgBox.clickedButton() == retryButton){
+        qDebug() << ">>> Bouton REJOUER cliqué";
+        close();
+        secondwindow = new SecondWindow(nullptr); //nullptr pour ne pas avoir this en parent pour ne pas être lié si l'un est fermé
+        secondwindow->show();
     }
 }
 
