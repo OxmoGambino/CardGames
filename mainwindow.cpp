@@ -22,6 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    qDebug() <<"Destruction MainWindow";
     delete ui;
 }
 
