@@ -24,6 +24,7 @@ SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
     ui->setupUi(this);
 
     initializeGUI();
+    const auto start = std::chrono::steady_clock::now();
 
     engine.createCards();
     engine.shuffleCards();
@@ -31,6 +32,9 @@ SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
 
     playGame();
     autoSolve();
+    const auto end = std::chrono::steady_clock::now();
+    genDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    endCondition();
 }
 
 void SecondAlgo::initializeGUI(){
@@ -94,9 +98,9 @@ void SecondAlgo::endCondition(){
         qDebug() << ">>> Condition vérifiée, partie terminée";
 
         QMessageBox msgBox;
-        msgBox.setInformativeText("Vous avez gagné !");
-        msgBox.setText("Bravo, vous avez trouvé toutes les paires en " +
-                       QString::number(engine.getAttempts()) + " coups !");
+        msgBox.setInformativeText("Toutes les paires en " +
+                                  QString::number(engine.getAttempts()) + " coups !");
+        msgBox.setText("Génération d'une partie aléatoire en" + QString::number(genDuration) +" ms");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
         QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
@@ -116,34 +120,42 @@ void SecondAlgo::endCondition(){
         qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
 
         if (msgBox.clickedButton() == saveButton){
-            qDebug() << ">>> Bouton SAUVEGARDER cliqué";
+            qDebug() << ">>> Bouton SAUVEGARDER cliqué secondAlgo";
+            qDebug() << engine.isSaved;
+            if (engine.isSaved == true){ // permet de ne pas sauvegarder deux fois
+                qDebug() << "partie déjà sauvegardée";
+                close();
+                return;
+            }
+            else{
+                QString filename = QFileDialog::getSaveFileName(
+                    this,
+                    "Sauvegarder la partie",
+                    "",
+                    "Text files (*.txt);;All files (*)",
+                    nullptr,
+                    QFileDialog::DontUseNativeDialog
+                    );
 
-            QString filename = QFileDialog::getSaveFileName(
-                this,
-                "Sauvegarder la partie",
-                "",
-                "Text files (*.txt);;All files (*)",
-                nullptr,
-                QFileDialog::DontUseNativeDialog
-                );
+                qDebug() << ">>> QFileDialog fermé, filename:" << filename;
 
-            qDebug() << ">>> QFileDialog fermé, filename:" << filename;
-
-            if(!filename.isEmpty()) {
-                qDebug() << ">>> Appel de saveGame()";
-                engine.saveGame(filename);
-                qDebug() << ">>> Retour de saveGame()";
-            } else {
-                qDebug() << ">>> Filename vide, sauvegarde annulée";
+                if(!filename.isEmpty()) {
+                    qDebug() << ">>> Appel de saveGame()";
+                    engine.saveGame(filename);
+                    qDebug() << engine.isSaved;
+                    qDebug() << ">>> Retour de saveGame()";
+                } else {
+                    qDebug() << ">>> Filename vide, sauvegarde annulée";
+                }
             }
         }
         else if (msgBox.clickedButton() == cancelButton){
             qDebug() << ">>> Bouton QUITTER cliqué";
-            hide();
+            close();
         }
         else if (msgBox.clickedButton() == retryButton){
             qDebug() << ">>> Bouton REJOUER cliqué";
-            hide();
+            close();
             secondwindow = new SecondWindow(nullptr); //nullptr pour ne pas avoir this en parent pour ne pas être lié si l'un est fermé
             secondwindow->show();
         }
@@ -300,7 +312,6 @@ void SecondAlgo::autoSolve(){
 
     }
     updateDisplay();
-    endCondition();
 }
 
 
@@ -327,6 +338,11 @@ void SecondAlgo::playGame(){
 
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
 void SecondAlgo::closeEvent(QCloseEvent *event){
+    if(engine.isSaved == true){
+        event -> accept();
+        return;
+    }
+
     QMessageBox msgBox;
     msgBox.setText("Voulez-vous sauvegarder la partie ?");
 
@@ -350,13 +366,6 @@ void SecondAlgo::closeEvent(QCloseEvent *event){
         event->accept(); //fermer la feêntre
     }
 }
-
-
-
-
-
-
-
 
 SecondAlgo::~SecondAlgo()
 {

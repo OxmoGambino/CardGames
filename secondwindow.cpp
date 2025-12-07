@@ -48,7 +48,7 @@ void SecondWindow::on_PlayButton_clicked(){
     bool estPair = ((hValue * lValue) % 2 == 0);
 
     if (estPair){
-        hide();
+        close();
         thirdwindow = new ThirdWindow(this, hValue, lValue);
         thirdwindow->show();
     }
@@ -77,7 +77,7 @@ void SecondWindow::on_SecAlgoButton_clicked(){
     bool estPair = ((hValue * lValue) % 2 == 0);
 
     if (estPair){
-        hide();
+        close();
         secondalgo = new SecondAlgo(this, hValue, lValue);
         secondalgo->show();
     }
