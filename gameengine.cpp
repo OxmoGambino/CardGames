@@ -65,6 +65,7 @@ bool gameEngine::hasBeenPlayed(int idx1, int idx2){
 
 
 bool gameEngine::playMove(int idx1, int idx2){
+    isSaved = false; // dès qu'on joue un coup, la save n'est plus à jour
     if (idx1 < 0 || idx2 < 0 || idx1 >=rows*cols || idx2 >= rows*cols){
         qDebug() << "Indice erroné";
         return false;
@@ -166,7 +167,6 @@ bool gameEngine::replayLoadedGame(){
 bool gameEngine::saveGame(const QString& filename){
     qDebug() << "=== Début saveGame ===";
     qDebug() << "Filename:" << filename;
-
     QFile file(filename);
 
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text)){
@@ -205,5 +205,6 @@ bool gameEngine::saveGame(const QString& filename){
     file.close();
     qDebug() << "=== Fin saveGame ===";
 
-    return true;
+    isSaved = true; //booléen qui permet de vérif si l'état actuel est chargé
+    return true; // booléen qui permet de vérif que la sauvegarde s'est bien passé
 }

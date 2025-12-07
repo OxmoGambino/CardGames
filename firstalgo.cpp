@@ -13,6 +13,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QCloseEvent>
+#include <algorithm>
 
 FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
@@ -22,13 +23,18 @@ FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
 {
     ui->setupUi(this);
 
-    initializeGUI();
 
+    initializeGUI();
+    const auto start = std::chrono::steady_clock::now();
     engine.createCards();
     engine.shuffleCards();
 
     playGame(); //affichage graphique
     autoSolve();
+    const auto end = std::chrono::steady_clock::now();
+    genDuration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+    endCondition();
+
 }
 
 void FirstAlgo::updateDisplay() { //affichage des cartes
@@ -93,9 +99,9 @@ void FirstAlgo::endCondition(){
         qDebug() << ">>> Condition vérifiée, partie terminée";
 
         QMessageBox msgBox;
-        msgBox.setInformativeText("Vous avez gagné !");
-        msgBox.setText("Bravo, vous avez trouvé toutes les paires en " +
+        msgBox.setInformativeText("Toutes les paires en " +
                        QString::number(engine.getAttempts()) + " coups !");
+        msgBox.setText("Génération d'une partie aléatoire en" + QString::number(genDuration) +" ms");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
         QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
@@ -138,11 +144,11 @@ void FirstAlgo::endCondition(){
         }
         else if (msgBox.clickedButton() == cancelButton){
             qDebug() << ">>> Bouton QUITTER cliqué";
-            hide();
+            close();
         }
         else if (msgBox.clickedButton() == retryButton){
             qDebug() << ">>> Bouton REJOUER cliqué";
-            hide();
+            close();
             secondwindow = new SecondWindow(nullptr); //nullptr pour ne pas avoir this en parent pour ne pas être lié si l'un est fermé
             secondwindow->show();
         }
@@ -237,7 +243,6 @@ void FirstAlgo::autoSolve(){
             }
         }
     }
-    endCondition();
     updateDisplay(); //appelé uniquement à la fin car pas besoin d'affichage avant la fin de l'algo
     //QMessageBox::information(this, "Algorithme terminé","Toutes les paires trouvées en " + QString::number(engine.getAttempts()) + " coups !");
 }

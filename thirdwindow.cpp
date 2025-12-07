@@ -133,6 +133,7 @@ void ThirdWindow::updateLabels() { //avant c'était dans playMove, mais mtn c'es
 }
 
 
+
 void ThirdWindow::endCondition(){
     qDebug() << ">>> endCondition appelée, pairFound:" << engine.getPairsFound() << "nbPairs:" << engine.getNbPairs();
 
@@ -163,34 +164,40 @@ void ThirdWindow::endCondition(){
 
         if (msgBox.clickedButton() == saveButton){
             qDebug() << ">>> Bouton SAUVEGARDER cliqué";
+            if (engine.isSaved == true){ // permet de ne pas sauvegarder deux fois
+                qDebug() << "partie déjà sauvegardée";
+                close();
+                return;
+            }
+            else{
+                QString filename = QFileDialog::getSaveFileName(
+                    this,
+                    "Sauvegarder la partie",
+                    "",
+                    "Text files (*.txt);;All files (*)",
+                    nullptr,
+                    QFileDialog::DontUseNativeDialog
+                    );
 
-            QString filename = QFileDialog::getSaveFileName(
-                this,
-                "Sauvegarder la partie",
-                "",
-                "Text files (*.txt);;All files (*)",
-                nullptr,
-                QFileDialog::DontUseNativeDialog
-                );
+                qDebug() << ">>> QFileDialog fermé, filename:" << filename;
 
-            qDebug() << ">>> QFileDialog fermé, filename:" << filename;
-
-            if(!filename.isEmpty()) {
-                qDebug() << ">>> Appel de saveGame()";
-                engine.saveGame(filename);
-                qDebug() << ">>> Retour de saveGame()";
-            } else {
-                qDebug() << ">>> Filename vide, sauvegarde annulée";
+                if(!filename.isEmpty()) {
+                    qDebug() << ">>> Appel de saveGame()";
+                    engine.saveGame(filename);
+                    qDebug() << ">>> Retour de saveGame()";
+                } else {
+                    qDebug() << ">>> Filename vide, sauvegarde annulée";
+                }
             }
         }
         else if (msgBox.clickedButton() == cancelButton){
             qDebug() << ">>> Bouton QUITTER cliqué";
-            hide();
+            close();
         }
         else if (msgBox.clickedButton() == retryButton){
             qDebug() << ">>> Bouton REJOUER cliqué";
-            hide();
-            secondwindow = new SecondWindow(this);
+            close();
+            secondwindow = new SecondWindow(nullptr); //nullptr pour ne pas avoir this en parent pour ne pas être lié si l'un est fermé
             secondwindow->show();
         }
 
@@ -247,7 +254,8 @@ void ThirdWindow::playGame(){
 
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
 void ThirdWindow::closeEvent(QCloseEvent *event){
-    if(engine.getPairsFound()==engine.getNbPairs()){ // lorsque j'ai fini la partie et que je clique sur la croix, le jeu se ferme et ne demande pas une autre sauvegarde
+    qDebug()<< "Entrée dans le closeEvent";
+    if(engine.getPairsFound()==engine.getNbPairs() || engine.isSaved == true){ // lorsque j'ai fini la partie et que je clique sur la croix, le jeu se ferme et ne demande pas une autre sauvegarde
         event->accept();
         return;
     }
@@ -293,6 +301,8 @@ void ThirdWindow::displayFoundCards(){
             foundCards.insert(idx1);
             foundCards.insert(idx2);
             qDebug() << "Paire:" << idx1 << "et" << idx2 << "→" << engine.getLabel(idx1);
+            cards[idx1]->setStyleSheet("background-color: rgb(30, 140, 0); color: white; font-weight: normal;");
+            cards[idx2]->setStyleSheet("background-color: rgb(30, 140, 0); color: white; font-weight: normal;");
         }
     }
 
@@ -318,7 +328,14 @@ void ThirdWindow::loadGame(const QString& filename){
 
     const auto end = std::chrono::steady_clock::now();
     const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(); //permet la conv en ms affichable
-    QMessageBox::information(this,"Chargement terminé", QString("Effectué en %1ms" ).arg(duration));
+
+    if (engine.getNbPairs() == engine.getPairsFound()){
+        QMessageBox::information(this,"Chargement", QString("Chargement effectué en %1ms.\nLa partie est terminée, %2 coups ont été joués (pénalités comptées)").arg(duration).arg(engine.getAttempts()));
+    }
+    else{
+        QMessageBox::information(this,"Chargement", QString("Chargement effectué en %1ms.\nLa partie n'est pas terminée :\n- %2 coups ont été joués.\n- %3 paires ont été trouvées.\nBonne chance pour la fin de partie !" ).arg(duration).arg(engine.getAttempts()).arg(engine.getPairsFound()));
+    }
+
 }
 
 ThirdWindow::~ThirdWindow(){

@@ -27,6 +27,7 @@ public:
     void initializeGUI();
 
 
+
 private:
     Ui::SecondAlgo *ui;
 
@@ -43,6 +44,7 @@ private:
     int firstValueIndex;
     int secondValue = 0;
     int secondValueIndex;
+    long long genDuration;
 
     QLabel* attemptLabel;
     QLabel* pairLabel;

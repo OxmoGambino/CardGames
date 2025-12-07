@@ -10,6 +10,8 @@
 class gameEngine
 {
 public:
+    bool isSaved = false; //booléen qui a vocation a être modif par les autres méthodes des autres classes , d'où le public
+
     gameEngine(int rows_, int cols_);
 
     //Init du jeu
@@ -47,6 +49,8 @@ private :
     int nbPairs = 0;
     int nbAttempt = 0;
     int pairFound = 0;
+
+
 
     std::vector<int> cardsValues;
     std::vector<QString> labels; // Plateau de jeu, utilisé en front pour afficher

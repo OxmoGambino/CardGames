@@ -51,7 +51,7 @@ void MainWindow::on_actionLoadGame_triggered(){
     filename = QFileDialog::getOpenFileName(this,"Charger la Sauvegarde","","Text files (*.txt) ;; All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
     qDebug() << getFilename();// récupère le chemin du fichier à charger
     // nécessaire d'avoir filename en attribut pour le récupérer dans thirdwindow avec une méthode de mainwindpw
-    hide();
+    close();
 
     QFile file(filename);
 

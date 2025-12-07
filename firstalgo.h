@@ -42,7 +42,7 @@ private:
     int firstValueIndex;
     int secondValue = 0;
     int secondValueIndex;
-
+    long long genDuration; //type renvoyé par std::chrono...
 
     QLabel* attemptLabel;
     QLabel* pairLabel;
