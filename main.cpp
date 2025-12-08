@@ -3,12 +3,11 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <iostream>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+    a.setQuitOnLastWindowClosed(true);
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
@@ -18,6 +17,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    a.setWindowIcon(QIcon(":/noix-de-coco.png"));
     MainWindow w;
     w.show();
 

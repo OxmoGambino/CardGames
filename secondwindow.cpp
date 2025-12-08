@@ -41,7 +41,9 @@ SecondWindow::SecondWindow(QWidget *parent)
 
 
 
-SecondWindow::~SecondWindow() { delete ui; }
+SecondWindow::~SecondWindow() {
+    qDebug() <<"Destruction secondWindow";
+    delete ui; }
 
 
 

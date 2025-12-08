@@ -100,7 +100,7 @@ void SecondAlgo::endCondition(){
         QMessageBox msgBox;
         msgBox.setInformativeText("Toutes les paires en " +
                                   QString::number(engine.getAttempts()) + " coups !");
-        msgBox.setText("Génération d'une partie aléatoire en" + QString::number(genDuration) +" ms");
+        msgBox.setText("Génération d'une partie aléatoire en " + QString::number(genDuration) +" ms");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
         QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
@@ -352,8 +352,7 @@ void SecondAlgo::closeEvent(QCloseEvent *event){
     msgBox.exec();
 
     if(msgBox.clickedButton()==saveButton){
-        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","Text files (*.txt) ;; All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
-        // Text files : suggestion par défault. All Files : deuxième filtre si l'utilisateur veut mettre une extension particulière.
+        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
 
         if(!filename.isEmpty()) { //vérification d'un nom valide
             engine.saveGame(filename);
@@ -369,5 +368,6 @@ void SecondAlgo::closeEvent(QCloseEvent *event){
 
 SecondAlgo::~SecondAlgo()
 {
+    qDebug() <<"Destruction SecondtAlgo";
     delete ui;
 }

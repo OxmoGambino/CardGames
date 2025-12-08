@@ -347,5 +347,6 @@ void ThirdWindow::loadGame(const QString& filename){
 }
 
 ThirdWindow::~ThirdWindow(){
+    qDebug() <<"Destruction ThirdWindow";
     delete ui;
 }
