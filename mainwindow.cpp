@@ -33,7 +33,7 @@ void MainWindow::on_actionQuitter_triggered(){
 
 void MainWindow::on_startButton_clicked(){
     close();
-    secondwindow = new SecondWindow(this);
+    secondwindow = new SecondWindow(nullptr);
     secondwindow->show();
 }
 

@@ -19,6 +19,7 @@ SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
     , ui(new Ui::SecondAlgo)
     , engine(rows_,cols_)
+    , saveAsked(false)
 {
 
     ui->setupUi(this);
@@ -97,11 +98,25 @@ void SecondAlgo::endCondition(){
     if(engine.getPairsFound() == engine.getNbPairs()){
         qDebug() << ">>> Condition vérifiée, partie terminée";
 
+        saveAsked=true;
+        qDebug() << ">>> saveAsked passé à true";
+
         QMessageBox msgBox;
         msgBox.setInformativeText("Toutes les paires en " +
                                   QString::number(engine.getAttempts()) + " coups !");
         msgBox.setText("Génération d'une partie aléatoire en " + QString::number(genDuration) +" ms");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+
+
+        //QPushButton *saveButton = msgBox.addButton("Sauvegarder", QMessageBox::AcceptRole);
+        //QPushButton *cancelButton = msgBox.addButton("Quitter", QMessageBox::RejectRole);
+        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
+
+        //msgBox.setDefaultButton(saveButton);
+
+        qDebug() << ">>> Affichage du QMessageBox";
+        msgBox.exec();
+        qDebug() << ">>> QMessageBox fermé";
 
         QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
         QAbstractButton *cancelButton = msgBox.button(QMessageBox::Cancel);
@@ -109,14 +124,7 @@ void SecondAlgo::endCondition(){
         saveButton->setText("Sauvegarder");
         cancelButton->setText("Quitter");
 
-        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
-
-        msgBox.setDefaultButton(QMessageBox::Cancel);
-
-        qDebug() << ">>> Affichage du QMessageBox";
-        msgBox.exec();
-        qDebug() << ">>> QMessageBox fermé";
-
+        QAbstractButton *clicked = msgBox.clickedButton();
         qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
 
         if (msgBox.clickedButton() == saveButton){
@@ -317,8 +325,6 @@ void SecondAlgo::autoSolve(){
 
 
 
-
-
 void SecondAlgo::playGame(){
 
     int rows = engine.getRows();
@@ -337,8 +343,8 @@ void SecondAlgo::playGame(){
 
 
 //Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
-void SecondAlgo::closeEvent(QCloseEvent *event){
-    if(engine.isSaved == true){
+/*void SecondAlgo::closeEvent(QCloseEvent *event){
+    if(engine.isSaved == true || saveAsked==true){
         event -> accept();
         return;
     }
@@ -363,8 +369,13 @@ void SecondAlgo::closeEvent(QCloseEvent *event){
 
     else if(msgBox.clickedButton()==leaveButton){
         event->accept(); //fermer la feêntre
+
     }
+}*/
+
+void SecondAlgo::closeEvent(QCloseEvent *event){
 }
+
 
 SecondAlgo::~SecondAlgo()
 {
