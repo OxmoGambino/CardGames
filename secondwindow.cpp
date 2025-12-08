@@ -66,7 +66,7 @@ void SecondWindow::on_AlgoButton_clicked(){
 
     if (estPair){
         close();
-        firstalgo = new FirstAlgo(this, hValue, lValue);
+        firstalgo = new FirstAlgo(nullptr, hValue, lValue);
         firstalgo->show();
     }
 
@@ -81,7 +81,7 @@ void SecondWindow::on_SecAlgoButton_clicked(){
 
     if (estPair){
         close();
-        secondalgo = new SecondAlgo(this, hValue, lValue);
+        secondalgo = new SecondAlgo(nullptr, hValue, lValue);
         secondalgo->show();
     }
 

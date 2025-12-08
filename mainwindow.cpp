@@ -49,7 +49,7 @@ QString MainWindow::getFilename(){
 void MainWindow::on_actionLoadGame_triggered(){
     int rows, cols;
 
-    filename = QFileDialog::getOpenFileName(this,"Charger la Sauvegarde","","Text files (*.txt) ;; All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
+    filename = QFileDialog::getOpenFileName(nullptr,"Charger la Sauvegarde","","All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
     qDebug() << getFilename();// récupère le chemin du fichier à charger
     // nécessaire d'avoir filename en attribut pour le récupérer dans thirdwindow avec une méthode de mainwindpw
     close();
@@ -57,7 +57,8 @@ void MainWindow::on_actionLoadGame_triggered(){
     QFile file(filename);
 
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        QMessageBox::critical(this,"Erreur","Impossible d'ouvrir la sauvegarde");
+        QMessageBox::critical(nullptr,"Erreur","Impossible d'ouvrir la sauvegarde");
+        close();
         return;
     }
 
@@ -66,7 +67,7 @@ void MainWindow::on_actionLoadGame_triggered(){
     qDebug() << rows << cols;
     file.close(); //pas de fuite mémoire;
 
-    thirdwindow = new ThirdWindow(this,rows,cols,1,filename);
+    thirdwindow = new ThirdWindow(nullptr,rows,cols,1,filename);
     thirdwindow -> show();
 
 
