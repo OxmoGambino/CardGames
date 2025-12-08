@@ -48,7 +48,6 @@ private:
     QLabel* pairLabel;
     bool locked=false;
     bool alreadyPlayed=false;
-    bool saveAsked=false;
 
     QWidget* central;
 

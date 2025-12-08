@@ -31,19 +31,12 @@ void gameEngine::createCards(){
     }
 }
 
+
 void gameEngine::shuffleCards(){
-    for(int i=0 ; i<nbPairs ; i++){
+    for(int i=0 ; i < nbCards ; i++){
         int j = QRandomGenerator::global()->bounded(cardsValues.size());
-        int b;
-        QString c;
-
-        b = cardsValues[i]; //mélange des valeurs de cartes (pour les tests)
-        cardsValues[i] = cardsValues[j];
-        cardsValues[j] = b;
-
-        c = labels[i]; //mélange du visuel // à utiliser pour la sauvegarde
-        labels[i] = labels[j];
-        labels[j] = c;
+        std::swap(cardsValues[i], cardsValues[j]);//echange des valeurs
+        std::swap(labels[i], labels[j]);//échange visuel
     }
 }
 

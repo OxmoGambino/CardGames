@@ -1,6 +1,5 @@
 #include "thirdwindow.h"
 #include "ui_thirdwindow.h"
-// #include <iostream>
 #include <QGridLayout>
 #include <QWidget>
 #include <QPushButton>
@@ -296,7 +295,7 @@ void ThirdWindow::displayFoundCards(){
     qDebug() << "=== Affichage des cartes trouvées ===";
 
     // Set pour stocker les cartes trouvées (évite les doublons)
-    QSet<int> foundCards;                                                                                    //peut être utile de l'avoir en attrivut peut être
+    QSet<int> foundCards;
     const std::vector<std::pair<int,int>>& hist = engine.getHistory();
 
     // Parcourir l'historique pour trouver les paires réussies

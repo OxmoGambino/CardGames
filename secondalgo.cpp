@@ -1,7 +1,6 @@
 #include "secondalgo.h"
 #include "secondwindow.h"
 #include "ui_SecondAlgo.h"
-//#include <iostream>
 #include <QGridLayout>
 #include <QWidget>
 #include <QPushButton>
@@ -10,7 +9,6 @@
 #include <QTimer>
 #include <QMessageBox>
 #include <QCloseEvent>
-//class ThirdWindow
 #include <QFileDialog>
 
 
@@ -19,7 +17,6 @@ SecondAlgo::SecondAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
     , ui(new Ui::SecondAlgo)
     , engine(rows_,cols_)
-    , saveAsked(false)
 {
 
     ui->setupUi(this);
@@ -83,23 +80,12 @@ void SecondAlgo::updateDisplay() { //affichage des cartes
     }
 }
 
-/*void SecondAlgo::endCondition(){
-    if(engine.getPairsFound() == engine.getNbPairs()){ //Fin de jeu (on a trouvé toute les pairs)
-
-        QMessageBox::information(this,
-                                 "Vous avez gagné !",
-                                 "Bravo, vous avez trouvé toutes les paires en " + QString::number(engine.getAttempts()) + " coups !");
-    }
-}*/
 
 void SecondAlgo::endCondition(){
     qDebug() << ">>> endCondition appelée, pairFound:" << engine.getPairsFound() << "nbPairs:" << engine.getNbPairs();
 
     if(engine.getPairsFound() == engine.getNbPairs()){
         qDebug() << ">>> Condition vérifiée, partie terminée";
-
-        saveAsked=true;
-        qDebug() << ">>> saveAsked passé à true";
 
         QMessageBox msgBox;
         msgBox.setInformativeText("Toutes les paires en " +
@@ -108,11 +94,8 @@ void SecondAlgo::endCondition(){
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
 
-        //QPushButton *saveButton = msgBox.addButton("Sauvegarder", QMessageBox::AcceptRole);
-        //QPushButton *cancelButton = msgBox.addButton("Quitter", QMessageBox::RejectRole);
         QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
 
-        //msgBox.setDefaultButton(saveButton);
 
         qDebug() << ">>> Affichage du QMessageBox";
         msgBox.exec();
@@ -124,7 +107,6 @@ void SecondAlgo::endCondition(){
         saveButton->setText("Sauvegarder");
         cancelButton->setText("Quitter");
 
-        QAbstractButton *clicked = msgBox.clickedButton();
         qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
 
         if (msgBox.clickedButton() == saveButton){
@@ -342,36 +324,7 @@ void SecondAlgo::playGame(){
 }
 
 
-//Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
-/*void SecondAlgo::closeEvent(QCloseEvent *event){
-    if(engine.isSaved == true || saveAsked==true){
-        event -> accept();
-        return;
-    }
 
-    QMessageBox msgBox;
-    msgBox.setText("Voulez-vous sauvegarder la partie ?");
-
-    QPushButton *saveButton = msgBox.addButton("Oui", QMessageBox::ActionRole);
-    QPushButton *leaveButton = msgBox.addButton("Non", QMessageBox::ActionRole);
-
-    msgBox.exec();
-
-    if(msgBox.clickedButton()==saveButton){
-        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
-
-        if(!filename.isEmpty()) { //vérification d'un nom valide
-            engine.saveGame(filename);
-            event -> accept(); //fermer la fenêtre
-        }
-        else{event->ignore();}
-    }
-
-    else if(msgBox.clickedButton()==leaveButton){
-        event->accept(); //fermer la feêntre
-
-    }
-}*/
 
 void SecondAlgo::closeEvent(QCloseEvent *event){
 }
