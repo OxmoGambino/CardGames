@@ -3,7 +3,6 @@
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
-#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +17,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    a.setWindowIcon(QIcon(":/noix-de-coco.png"));
     MainWindow w;
     w.show();
 
