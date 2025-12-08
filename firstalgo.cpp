@@ -98,11 +98,25 @@ void FirstAlgo::endCondition(){
     if(engine.getPairsFound() == engine.getNbPairs()){
         qDebug() << ">>> Condition vérifiée, partie terminée";
 
+        saveAsked=true;
+        qDebug() << ">>> saveAsked passé à true";
+
         QMessageBox msgBox;
         msgBox.setInformativeText("Toutes les paires en " +
-                       QString::number(engine.getAttempts()) + " coups !");
+                                  QString::number(engine.getAttempts()) + " coups !");
         msgBox.setText("Génération d'une partie aléatoire en " + QString::number(genDuration) +" ms");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
+
+
+        //QPushButton *saveButton = msgBox.addButton("Sauvegarder", QMessageBox::AcceptRole);
+        //QPushButton *cancelButton = msgBox.addButton("Quitter", QMessageBox::RejectRole);
+        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
+
+        //msgBox.setDefaultButton(saveButton);
+
+        qDebug() << ">>> Affichage du QMessageBox";
+        msgBox.exec();
+        qDebug() << ">>> QMessageBox fermé";
 
         QAbstractButton *saveButton   = msgBox.button(QMessageBox::Save);
         QAbstractButton *cancelButton = msgBox.button(QMessageBox::Cancel);
@@ -110,36 +124,37 @@ void FirstAlgo::endCondition(){
         saveButton->setText("Sauvegarder");
         cancelButton->setText("Quitter");
 
-        QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
-
-        msgBox.setDefaultButton(QMessageBox::Cancel);
-
-        qDebug() << ">>> Affichage du QMessageBox";
-        msgBox.exec();
-        qDebug() << ">>> QMessageBox fermé";
-
+        QAbstractButton *clicked = msgBox.clickedButton();
         qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
 
         if (msgBox.clickedButton() == saveButton){
-            qDebug() << ">>> Bouton SAUVEGARDER cliqué";
+            qDebug() << ">>> Bouton SAUVEGARDER cliqué secondAlgo";
+            qDebug() << engine.isSaved;
+            if (engine.isSaved == true){ // permet de ne pas sauvegarder deux fois
+                qDebug() << "partie déjà sauvegardée";
+                close();
+                return;
+            }
+            else{
+                QString filename = QFileDialog::getSaveFileName(
+                    this,
+                    "Sauvegarder la partie",
+                    "",
+                    "Text files (*.txt);;All files (*)",
+                    nullptr,
+                    QFileDialog::DontUseNativeDialog
+                    );
 
-            QString filename = QFileDialog::getSaveFileName(
-                this,
-                "Sauvegarder la partie",
-                "",
-                "Text files (*.txt);;All files (*)",
-                nullptr,
-                QFileDialog::DontUseNativeDialog
-                );
+                qDebug() << ">>> QFileDialog fermé, filename:" << filename;
 
-            qDebug() << ">>> QFileDialog fermé, filename:" << filename;
-
-            if(!filename.isEmpty()) {
-                qDebug() << ">>> Appel de saveGame()";
-                engine.saveGame(filename);
-                qDebug() << ">>> Retour de saveGame()";
-            } else {
-                qDebug() << ">>> Filename vide, sauvegarde annulée";
+                if(!filename.isEmpty()) {
+                    qDebug() << ">>> Appel de saveGame()";
+                    engine.saveGame(filename);
+                    qDebug() << engine.isSaved;
+                    qDebug() << ">>> Retour de saveGame()";
+                } else {
+                    qDebug() << ">>> Filename vide, sauvegarde annulée";
+                }
             }
         }
         else if (msgBox.clickedButton() == cancelButton){
@@ -263,31 +278,10 @@ void FirstAlgo::playGame(){
     }
 }
 
-//Demande au joueur s'il souhaite sauvegarder lorsqu'il tente de quitter l'application en pleine partie
+
 void FirstAlgo::closeEvent(QCloseEvent *event){
-    QMessageBox msgBox;
-    msgBox.setText("Voulez-vous sauvegarder la partie ?");
-
-    QPushButton *saveButton = msgBox.addButton("Oui", QMessageBox::ActionRole);
-    QPushButton *leaveButton = msgBox.addButton("Non", QMessageBox::ActionRole);
-
-    msgBox.exec();
-
-    if(msgBox.clickedButton()==saveButton){
-        QString filename = QFileDialog::getSaveFileName(this,"Sauvegarder la partie","","All files (*)",nullptr,QFileDialog::DontUseNativeDialog);
-        // Text files : suggestion par défault. All Files : deuxième filtre si l'utilisateur veut mettre une extension particulière.
-
-        if(!filename.isEmpty()) { //vérification d'un nom valide
-            engine.saveGame(filename);
-            event -> accept(); //fermer la fenêtre
-        }
-        else{event->ignore();}
-    }
-
-    else if(msgBox.clickedButton()==leaveButton){
-        event -> accept();
-    }
 }
+
 
 FirstAlgo::~FirstAlgo()
 {
