@@ -2,7 +2,6 @@
 #include "secondwindow.h"
 #include "ui_firstalgo.h"
 #include "gameengine.h"
-//#include <iostream>
 #include <QGridLayout>
 #include <QWidget>
 #include <QPushButton>
@@ -13,7 +12,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QCloseEvent>
-#include <algorithm>
+
 
 FirstAlgo::FirstAlgo(QWidget *parent, int rows_, int cols_)
     : QDialog(parent)
@@ -85,12 +84,6 @@ void FirstAlgo::initializeGUI(){
 }
 
 
-/*void FirstAlgo::endCondition(){
-    if(engine.getPairsFound() == engine.getNbPairs()){ //Fin de jeu (on a trouvé toute les pairs)
-
-        QMessageBox::information(this,"Vous avez gagné !", "Bravo, vous avez trouvé toutes les paires en " + QString::number(engine.getAttempts()) + " coups !");
-    }
-}*/
 
 void FirstAlgo::endCondition(){
     qDebug() << ">>> endCondition appelée, pairFound:" << engine.getPairsFound() << "nbPairs:" << engine.getNbPairs();
@@ -98,21 +91,14 @@ void FirstAlgo::endCondition(){
     if(engine.getPairsFound() == engine.getNbPairs()){
         qDebug() << ">>> Condition vérifiée, partie terminée";
 
-        saveAsked=true;
-        qDebug() << ">>> saveAsked passé à true";
-
         QMessageBox msgBox;
         msgBox.setInformativeText("Toutes les paires en " +
                                   QString::number(engine.getAttempts()) + " coups !");
         msgBox.setText("Génération d'une partie aléatoire en " + QString::number(genDuration) +" ms");
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Cancel);
 
-
-        //QPushButton *saveButton = msgBox.addButton("Sauvegarder", QMessageBox::AcceptRole);
-        //QPushButton *cancelButton = msgBox.addButton("Quitter", QMessageBox::RejectRole);
         QPushButton *retryButton = msgBox.addButton("Rejouer", QMessageBox::ActionRole);
 
-        //msgBox.setDefaultButton(saveButton);
 
         qDebug() << ">>> Affichage du QMessageBox";
         msgBox.exec();
@@ -124,7 +110,6 @@ void FirstAlgo::endCondition(){
         saveButton->setText("Sauvegarder");
         cancelButton->setText("Quitter");
 
-        QAbstractButton *clicked = msgBox.clickedButton();
         qDebug() << ">>> Bouton cliqué:" << msgBox.clickedButton()->text();
 
         if (msgBox.clickedButton() == saveButton){
