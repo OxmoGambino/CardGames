@@ -54,7 +54,7 @@
   - 🏁 End-of-game detection
 
 
-
+![Interface of the game](firstwindow.png)
 
 
   👤 Authors
