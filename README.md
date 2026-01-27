@@ -9,6 +9,8 @@
 
 
 
+
+
   🎯 Objectives
 
   - Implement the core logic of a Memory / Matching Card game
@@ -18,6 +20,8 @@
   - Improve problem-solving and algorithmic thinking
 
   - Provide a simple and interactive gameplay experience
+
+
 
 
 
@@ -35,6 +39,8 @@
 
 
 
+
+
   ⚙️ Features
 
   - 🂠 Randomized card positions at each game start
@@ -46,6 +52,8 @@
   - 📊 Move counter / score tracking 
 
   - 🏁 End-of-game detection
+
+
 
 
 
