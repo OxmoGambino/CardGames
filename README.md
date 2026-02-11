@@ -1,6 +1,6 @@
-🃏 Memory Card Game
+# 🃏 Memory Card Game
 
-  📖 Project Description
+  # 📖 Project Description
   
   This project is a Memory Card Game where the player must find matching pairs of cards by flipping them two at a time.
   The goal of the game is to match all pairs using memory and concentration in the fewest possible moves.
@@ -11,7 +11,7 @@
 
 
 
-  🎯 Objectives
+  # 🎯 Objectives
 
   - Implement the core logic of a Memory / Matching Card game
 
@@ -25,7 +25,7 @@
 
 
 
-  🎮 Gameplay Rules
+  # 🎮 Gameplay Rules
 
   - All cards are placed face down at the start of the game.
 
@@ -41,7 +41,7 @@
 
 
 
-  ⚙️ Features
+  # ⚙️ Features
 
   - 🂠 Randomized card positions at each game start
 
@@ -75,7 +75,7 @@
 
 
 
-  👤 Authors
+  # 👤 Authors
 
   Name: Nicola Di Pietro & Guillaume Tritz--Guden
 
